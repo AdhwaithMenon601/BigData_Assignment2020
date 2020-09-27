@@ -5,9 +5,14 @@ f=open(path,"r")
 d={}
 for i in f:
 	key,value=i.strip("\n").split(",")
-	d[key]=int(value)
+	d[key]=[float(value),0]
 for i in sys.stdin:
 	key,value=i.strip("\n").split("\t")
 	l=value.strip('[').strip(']').split(",")
 	for j in l:
-		print(j.strip(" "),"\t",d[key]/len(l),sep="")
+		if key in d:
+			print(j.strip(" "),"\t",d[key][0]/len(l),sep="")
+			d[j.strip(" ")][1]=1
+for i in d:
+	if d[i][1]==0:
+		print(i,"\t",0.15,sep="")

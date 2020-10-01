@@ -1,30 +1,38 @@
 #!/usr/bin/python3
 import sys
-#intial variables
-current_word=None
-current_sum=0
-word=None
-f=open("/home/nidarshan/a2/v1.txt","w")
-for i in sys.stdin:
-	#stripping the line of leading and trailing whitespaces
-	line=i.strip()
-	#splitting based on tab space
-	word,temp_sum=i.split('\t')
-	word=word.strip("'\t\n'")
-	#typecasting
-	temp_sum=float(temp_sum.strip("\t\n"))
-	#incrementing count by 1
-	if current_word==word:
-		current_sum+=temp_sum
-	else:
-		#if current_word is not None
-		if current_word:
-			f.write(current_word+","+str(0.15+0.85*current_sum)+"\n")
-			#print(current_word,",",current_count,sep="")
-		#setting the word and count
-		current_sum=temp_sum
-		current_word=word
-#accounting for the last word edge case
-if current_word==word:
-	f.write(current_word+","+str(0.15+0.85*current_sum)+"\n")
-f.close()
+
+current_node = None
+sum_contrib = 0
+key = None
+
+# Reading input
+for line in sys.stdin:
+
+    if (len(line) < 3):
+        continue
+
+    # Splitting by tab
+    key, rank = line.strip('\n').split('\t')
+    rank = float(rank)
+
+    # Writing to file
+    if key != current_node:
+
+        if (current_node == None):
+            current_node = key
+
+        else:
+            # Calculating new rank and writing to file
+            expr = round(0.15 + (0.85 * sum_contrib), 5)
+            print(current_node + ',', end = "")
+            print("{0:.5f}".format(expr))
+
+            current_node = key
+            sum_contrib = rank
+
+    # Adding contrib
+    else:
+        sum_contrib += rank
+
+# Printing values for final node
+print(current_node + ',' + str(expr), end = "")

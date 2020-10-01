@@ -24,7 +24,7 @@ for line in sys.stdin:
         else:
             # Calculating new rank and writing to file
             expr = round(0.15 + (0.85 * sum_contrib), 5)
-            print(current_node + ',', end = "")
+            print(current_node + ',', end="")
             print("{0:.5f}".format(expr))
 
             current_node = key

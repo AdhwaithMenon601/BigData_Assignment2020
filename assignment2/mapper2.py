@@ -22,6 +22,12 @@ for adj_line in sys.stdin:
     # Reading the node and its adjacency list
     key_node, node_list = adj_line.strip('\n').split('\t')
     node_list = (node_list[1 : -1]).split(',')
+    #Printing for removing the initial quotes
+    for i in range(0,len(node_list)):
+        if (i == 0):
+            node_list[i] = node_list[i][1 : -1]
+        else:
+            node_list[i] = node_list[i][2 : -1]
 
     # Calculating page_rank/n for each node
     for node in node_list:

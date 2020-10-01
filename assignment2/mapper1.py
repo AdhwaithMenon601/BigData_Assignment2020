@@ -2,6 +2,6 @@
 import sys
 for i in sys.stdin:
 	if i[0]=='#':
-		continue;
+		continue
 	key,value=i.strip("\n").split("\t")
 	print(key," ",value,sep="")

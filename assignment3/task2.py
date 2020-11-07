@@ -33,7 +33,7 @@ df2 = df2.withColumn("Total_Strokes", df2["Total_Strokes"].cast(IntegerType()))
 df = df1.join(df2, on=["key_id"], how='inner').drop(df1['word'])
 
 # First filter via 'unrecognised'
-df = df.filter(df["reccognized"] == "False")
+df = df.filter(df["recognized"] == "FALSE")
 
 # Then filter via number of strokes less than 'k'
 df = df.filter(df["Total_Strokes"] < k)

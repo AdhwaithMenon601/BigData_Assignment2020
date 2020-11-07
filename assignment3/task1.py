@@ -9,8 +9,8 @@ from pyspark.sql.types import IntegerType
 # Reading the word and path from command line
 word = sys.argv[1]
 path = sys.argv[2]
-# The below is only for final submission
-# path2 = sys.argv[3]
+path2 = sys.argv[3]
+
 
 # Starting a new Spark Session
 spark = SparkSession.builder.master("local[*]").appName("task1").getOrCreate()
@@ -21,8 +21,8 @@ df1 = spark.read.csv(path, header=True, inferSchema=True)
 df1 = df1.withColumn("Total_Strokes", df1["Total_Strokes"].cast(IntegerType()))
 
 # Calculating the averages for the given word
-rec_df = df1.filter(df1['reccognized'] == "True")
-unrec_df = df1.filter(df1['reccognized'] == "False")
+rec_df = df1.filter(df1['recognized'] == "TRUE")
+unrec_df = df1.filter(df1['recognized'] == "FALSE")
 
 rec_df = rec_df.filter(rec_df['word'] == word)
 unrec_df = unrec_df.filter(unrec_df['word'] == word)

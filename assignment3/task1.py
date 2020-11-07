@@ -27,15 +27,19 @@ unrec_df = df1.filter(df1['reccognized'] == "False")
 rec_df = rec_df.filter(rec_df['word'] == word)
 unrec_df = unrec_df.filter(unrec_df['word'] == word)
 
-if (not rec_df.head(1) or not unrec_df.head(1)):
-    print(0)
+if (not rec_df.head(1) and not unrec_df.head(1)):
+    edge1 = "{:.5f}".format(0)
+    print(edge1,"\n",edge1,sep='')
 else:
-    rec_avg = rec_df.groupBy("word").avg("Total_Strokes")
-    unrec_avg = unrec_df.groupBy("word").avg("Total_Strokes")
-    # Printing the respective averages
+    tmp1 = 0
+    tmp2 = 0
+    if (rec_df.head(1)):
+        rec_avg = rec_df.groupBy("word").avg("Total_Strokes")
+        tmp2 = rec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
+    if (unrec_df.head(1)):
+        unrec_avg = unrec_df.groupBy("word").avg("Total_Strokes")
+        tmp1 = unrec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
     
-    tmp1 = unrec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
-    tmp2 = rec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
     
     # Rounding to 5 decimal places
     format_1 = "{:.5f}".format(tmp1)

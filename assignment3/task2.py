@@ -43,7 +43,7 @@ df = df.filter(df["word"] == myword)
 
 # Post this groupBy the key('country_id') and aggregate via the 'count' function
 if (not df.head(1)):
-    print("Empty")
+    print(0)
 else:
     grouped_df = df.groupBy("countrycode").count()
     grouped_df = grouped_df.orderBy("countrycode")

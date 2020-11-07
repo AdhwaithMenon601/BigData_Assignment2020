@@ -1,8 +1,6 @@
 # Code for pyspark and task1
 # Read the dataset and perform operations on it using pyspark
 import sys
-import pandas as pd
-import numpy as np
 from pyspark import SparkContext
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
@@ -30,7 +28,7 @@ rec_df = rec_df.filter(rec_df['word'] == word)
 unrec_df = unrec_df.filter(unrec_df['word'] == word)
 
 if (not rec_df.head(1) or not unrec_df.head(1)):
-    print("Empty")
+    print(0)
 else:
     rec_avg = rec_df.groupBy("word").avg("Total_Strokes")
     unrec_avg = unrec_df.groupBy("word").avg("Total_Strokes")
@@ -39,4 +37,8 @@ else:
     tmp1 = unrec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
     tmp2 = rec_avg.select("avg(Total_Strokes)").rdd.flatMap(list).collect()[0]
     
-    print(tmp1,"\n",tmp2,sep='')
+    # Rounding to 5 decimal places
+    format_1 = "{:.5f}".format(tmp1)
+    format_2 = "{:.5f}".format(tmp2)
+
+    print(format_2,"\n",format_1,sep='')

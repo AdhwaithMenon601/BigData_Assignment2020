@@ -4,16 +4,22 @@ from pyspark.streaming import StreamingContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 
-play_path = "hdfs://localhost:9000/ip/players.csv"
-team_path = "hdfs://localhost:9000/ip/teams.csv"
+play_path = "hdfs://localhost:9000/players.csv"
+team_path = "hdfs://localhost:9000/teams.csv"
 
 
 # Creating the streaming spark context and spark session
-sp_context = SparkContext('local[3]', "Read_Stream")
-ssp_context = StreamingContext(sp_context, 1)
+sp_context = SparkContext('local[2]', "Read_Stream")
+ssp_context = StreamingContext(sp_context, 5)
 sp_sess = SparkSession.builder.appName('Read_Data').getOrCreate()
-sp_context.addFile("/home/nidarshan/bd_project/yo/Data/EPL_stream/stream/duel.py")
+sp_context.addFile("duel.py")
+sp_context.addFile("free_kick.py")
+sp_context.addFile("fouls.py")
+sp_context.addFile("owngoal.py")
 from duel import *
+from free_kick import *
+from fouls import *
+from owngoal import *
 # Reading the CSV files using Spark session
 players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
 teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
@@ -33,6 +39,10 @@ def func(rdd):
     # Calculating the pass accuracy
     #pass_acc = pass_accuracy(event_df)
     print(duel_effectiveness(event_df))
+    print(free_kick_calc(event_df))
+    num_fouls = fouls_loss(event_df)    # Required this for player rating
+    print(num_fouls)
+    print(own_goal_calc(event_df))
     # Printing details for each JSON
     # event_json.foreach(event_process)
 

@@ -194,7 +194,7 @@ def shots_effectiveness(event_df):
     for player in player_shots:
         stats = player_shots[player]
         if (stats[0] + stats[1] + stats[2] == 0):
-            continue
+            eff = 0
         else:
             eff = (stats[0] + (stats[1] * 0.5)) / (stats[0] + stats[1] + stats[2])
         player_shots.update({player: eff})

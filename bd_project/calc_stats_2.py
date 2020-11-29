@@ -46,7 +46,7 @@ def player_contribution_dict(value, dtime, player_contribution, players_pass, pl
         if i in players_duel:
             cont += players_duel[i]
         if i in players_kick:
-            cont += players_kick[i]
+            cont += players_kick[i][3]
         if i in players_shot:
             cont += players_shot[i]
         cont = cont/4
@@ -91,8 +91,8 @@ def player_rating(player_rating, player_contribution, own_per_player, fouls_per_
 
     # Finding the performance from contribution
     for i in player_contribution:
-        if (not(i in player_rate)):
-            player_rate[i] = 0.5
+        if (not(i in player_rating)):
+            player_rating[i] = 0.5
             continue
 
         # Edge cases
@@ -104,7 +104,7 @@ def player_rating(player_rating, player_contribution, own_per_player, fouls_per_
         # Finding performance
         player_perf = player_contribution[i] - \
             ((0.005 * fouls_per_player[i]) + (0.5 * own_per_player[i]))
-        player_rate[i] = (player_rate[i] + player_perf) / 2
+        player_rating[i] = (player_rating[i] + player_perf) / 2
 
 # For calculating the chemistry after each match
 
@@ -121,13 +121,15 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
     Returns:
         void
     """
-    unique_teams = list(set(team_player_dict.keys()))
+    unique_teams = list(team_player_dict.keys())
 
     # Compute chemistry for players of individual team
     # First for team 1
     for player_pair in itertools.combinations(team_player_dict[unique_teams[0]], 2):
         # Since these are for the same team , chemistry is updated as such
         p1, p2 = player_pair
+        # print(type(p1))
+        # print(type(player_pair))
         chem_change = 0
 
         p1_change = player_rating[p1] - prev_player_rating[p1]
@@ -141,7 +143,10 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
-        player_chemistry[player_pair] += chem_change
+        if (not(player_pair in player_chemistry)):
+            player_chemistry[player_pair] = 0.5
+        else:
+            player_chemistry[(p1,p2)] += chem_change
 
     # Next for team 2
     for player_pair in itertools.combinations(team_player_dict[unique_teams[1]], 2):
@@ -160,7 +165,10 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
-        player_chemistry[player_pair] += chem_change
+        if (not(player_pair in player_chemistry)):
+            player_chemistry[player_pair] = 0.5
+        else:
+            player_chemistry[(p1,p2)] += chem_change
 
     # Next for combined of teams 1 and teams 2
     combined_team_list = [(i, j) for i in team_player_dict[unique_teams[0]]
@@ -179,7 +187,10 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
-        player_chemistry[player_pair] += chem_change
+        if (not(player_pair in player_chemistry)):
+            player_chemistry[player_pair] = 0.5
+        else:
+            player_chemistry[(p1,p2)] += chem_change
 
 
 def ret_players(match_df):

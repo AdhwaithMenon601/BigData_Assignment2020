@@ -12,7 +12,7 @@ team_path = "hdfs://localhost:9000/teams.csv"
 # Dictionary for the player chemistry and rating
 # Might have to make it into a dataframe if space is too large
 player_chemistry = {}
-player_rating = {}
+player_ratings = {}
 profile_schema = None
 player_profile = None
 
@@ -52,14 +52,15 @@ def process_record(rdd):
     event_json = rdd.filter(lambda x : x != match_json).map(lambda x : eval(x))
     event_df = event_json.map(lambda x : Row(**x)).toDF()
 
-    match_json = rdd.first()
-    match_df = rdd.filter(lambda x : x == match_json).map(lambda x : eval(x))
-    match_df = match_df.map(lambda x : Row(**x)).toDF()
+    match_json = eval(rdd.first())
+
+    # match_df = rdd.filter(lambda x : x == match_json).map(lambda x : eval(x))
+    # match_df = match_df.map(lambda x : Row(**x)).toDF()
 
 
     # Need to use global variable in this case
     global player_profile 
-    global player_rating
+    global player_ratings
     global player_chemistry
 
     # To insert into the player profile dataframe , we need to create a new df
@@ -71,10 +72,10 @@ def process_record(rdd):
     """
 
     # Store the previous player ratings
-    prev_player_rating = player_rating.copy()
+    prev_player_rating = player_ratings.copy()
 
     # Calling ret_players
-    teams_dict = ret_players(match_df)
+    teams_dict = ret_players(match_json)
 
     # Calculating the metrics
     pass_ac = pass_accuracy(event_df)
@@ -82,11 +83,11 @@ def process_record(rdd):
     free_eff = freekick_effectiveness(event_df)
     shots_eff = shots_effectiveness(event_df)
     fouls_per_player = fouls_loss(event_df)    
-    own_per_player = own_goal(event_df))
-    team_player_dict = ret_players(match_df)
-    player_contribution = player_contribution_main(match_df, pass_ac, duel_eff, free_eff, shots_eff)
-    player_rating(player_rating, player_contribution, own_per_player, fouls_per_player)
-    calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_player_dict)
+    own_per_player = own_goal(event_df)
+    player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
+    player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
+    calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
+    print(player_chemistry)
 
 if __name__ == '__main__':
 
@@ -111,11 +112,11 @@ if __name__ == '__main__':
 
     # Initializing the player chem and ratings
     player_chemistry = init_chemistry(players)
-    player_rating = init_ratings(players)
+    player_ratings = init_ratings(players)
 
     # Adds player profile
     player_profile = init_profile()
-    player_profile.show()
+    # player_profile.show()
 
     # Connecting to the specified host and port number
     data = ssp_context.socketTextStream('localhost', 6100)

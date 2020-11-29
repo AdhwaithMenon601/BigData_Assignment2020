@@ -193,8 +193,10 @@ def shots_effectiveness(event_df):
     # Shots effectiveness for each player
     for player in player_shots:
         stats = player_shots[player]
-        eff = (stats[0] + (stats[1] * 0.5)) / \
-            (stats[0] + stats[1] + stats[2])
+        if (stats[0] + stats[1] + stats[2] == 0):
+            continue
+        else:
+            eff = (stats[0] + (stats[1] * 0.5)) / (stats[0] + stats[1] + stats[2])
         player_shots.update({player: eff})
 
     return player_shots
@@ -263,3 +265,6 @@ def own_goal(event_df):
                 own_per_player[player_id] += 1
 
     return own_per_player
+
+          
+    

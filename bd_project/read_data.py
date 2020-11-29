@@ -5,23 +5,9 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 
+# Setting the paths of the CSV files
 play_path = "hdfs://localhost:9000/players.csv"
 team_path = "hdfs://localhost:9000/teams.csv"
-
-
-# Creating the streaming spark context and spark session
-sp_context = SparkContext('local[2]', "Read_Stream")
-ssp_context = StreamingContext(sp_context, 5)
-sp_sess = SparkSession.builder.appName('Read_Data').getOrCreate()
-sp_context.addFile("calc_stats_1.py")
-sp_context.addFile("calc_stats_2.py")
-sp_context.addFile("init_stats.py")
-from calc_stats_1 import *
-from calc_stats_2 import *
-from init_stats import *
-# Reading the CSV files using Spark session
-players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
-teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
 
 # Dictionary for the player chemistry and rating
 # Might have to make it into a dataframe if space is too large
@@ -54,7 +40,7 @@ def init_profile():
     return player_profile
 
 
-def func(rdd):
+def process_record(rdd):
 
     # If RDD is empty, move on
     if rdd.isEmpty():
@@ -82,6 +68,9 @@ def func(rdd):
     # Store the previous player ratings
     prev_player_rating = player_rating.copy()
 
+    # Calling ret_players
+    teams_dict = ret_players(match_df)
+
     # Calculating the metrics
     '''
     print(pass_accuracy(event_df))
@@ -96,14 +85,37 @@ def func(rdd):
     print(player_chemistry)
     '''
 
-player_chemistry = init_chemistry(players)
-player_rating = init_ratings(players)
-# Adds player profile
-player_profile = init_profile()
-player_profile.show()
+if __name__ == '__main__':
 
-# Connecting to the specified host and port number
-data = ssp_context.socketTextStream('localhost', 6100)
-data.foreachRDD(func)
-ssp_context.start()
-ssp_context.awaitTermination()
+    # Creating the streaming spark context and spark session
+    sp_context = SparkContext('local[2]', "Read_Stream")
+    ssp_context = StreamingContext(sp_context, 5)
+    sp_sess = SparkSession.builder.appName('Read_Data').getOrCreate()
+
+    # Adding the files to Spark Context
+    sp_context.addFile("calc_stats_1.py")
+    sp_context.addFile("calc_stats_2.py")
+    sp_context.addFile("init_stats.py")
+
+    # Reading the CSV files using Spark session
+    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
+    teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
+
+    # Importing the files
+    from calc_stats_1 import *
+    from calc_stats_2 import *
+    from init_stats import *
+
+    # Initializing the player chem and ratings
+    player_chemistry = init_chemistry(players)
+    player_rating = init_ratings(players)
+
+    # Adds player profile
+    player_profile = init_profile()
+    player_profile.show()
+
+    # Connecting to the specified host and port number
+    data = ssp_context.socketTextStream('localhost', 6100)
+    data.foreachRDD(process_record)
+    ssp_context.start()
+    ssp_context.awaitTermination()

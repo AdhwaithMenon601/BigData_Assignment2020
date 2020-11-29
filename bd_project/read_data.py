@@ -78,23 +78,26 @@ def func(rdd):
 
     # To insert into the player profile dataframe , we need to create a new df
     # And union this with the player profile
+    """
+    new_row = [(1134,'abc', 5, 6, 7, 0.56, 0)]
+    new_df = sp_sess.createDataFrame(new_row, profile_schema)
+    player_profile = player_profile.union(new_df)
+    """
 
     # Store the previous player ratings
     prev_player_rating = player_rating.copy()
 
     # Calculating the metrics
-    '''
-    print(pass_accuracy(event_df))
-    print(duel_effectiveness(event_df))
-    print(freekick_effectiveness(event_df))
-    print(shots_effectiveness(event_df))
-    fouls_per_player = fouls_loss(event_df)    # Required this for player rating
-    print(fouls_per_player)
-    print(own_goal(event_df))
+    pass_ac = pass_accuracy(event_df)
+    duel_eff = duel_effectiveness(event_df)
+    free_eff = freekick_effectiveness(event_df)
+    shots_eff = shots_effectiveness(event_df)
+    fouls_per_player = fouls_loss(event_df)    
+    own_per_player = own_goal(event_df))
+    team_player_dict = ret_players(match_df)
+    player_contribution = player_contribution_main(match_df, pass_ac, duel_eff, free_eff, shots_eff)
     player_rating(player_rating, player_contribution, own_per_player, fouls_per_player)
     calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_player_dict)
-    print(player_chemistry)
-    '''
 
 player_chemistry = init_chemistry(players)
 player_rating = init_ratings(players)

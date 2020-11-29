@@ -21,6 +21,7 @@ def init_chemistry(players):
     player_chemistry = {}
     # The above is useful when we need to prepare the initial chemistry
     for chem_pair in itertools.combinations(player_list, 2):
+        chem_pair = set(chem_pair)
         player_chemistry[chem_pair] = 0.5
     
     return player_chemistry

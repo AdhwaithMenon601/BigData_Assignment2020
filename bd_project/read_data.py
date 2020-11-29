@@ -85,8 +85,10 @@ def process_record(rdd):
     fouls_per_player = fouls_loss(event_df)    
     own_per_player = own_goal(event_df)
     player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
-    player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
-    calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
+    player_temp2 = player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
+    player_ratings = player_temp2.copy()
+    player_temp = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
+    player_chemistry = player_temp.copy()
     print(player_chemistry)
 
 if __name__ == '__main__':

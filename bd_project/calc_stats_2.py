@@ -89,22 +89,24 @@ def player_rating(player_rating, player_contribution, own_per_player, fouls_per_
         void
     """
 
+    temp_var = 0
     # Finding the performance from contribution
     for i in player_contribution:
-        if (not(i in player_rating)):
-            player_rating[i] = 0.5
+        if (i not in player_rating):
+            player_rating.update({i:0.5})
             continue
 
         # Edge cases
-        if (not(i in fouls_per_player)):
-            fouls_per_player[i] = 0
-        if (not(i in own_per_player)):
-            own_per_player[i] = 0
+        if (i not in fouls_per_player):
+            fouls_per_player.update({i:0})
+        if (i not in own_per_player):
+            own_per_player.update({i:0})
 
         # Finding performance
         player_perf = player_contribution[i] - \
             ((0.005 * fouls_per_player[i]) + (0.5 * own_per_player[i]))
-        player_rating[i] = (player_rating[i] + player_perf) / 2
+        temp_var = (player_rating[i] + player_perf) / 2
+        player_rating.update({i : temp_var})
     
     return player_rating
 
@@ -122,6 +124,17 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
 
     Returns:
         void
+
+        (49876, 350976)
+        (49876, 8066)
+        (49876, 217078)
+        (93, 254898)
+        (93, 3324)
+        (93, 212651)
+        (93, 135103)
+        (93, 227756)
+
+
     """
     unique_teams = list(team_player_dict.keys())
 
@@ -136,10 +149,10 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
         s = temp_pair in player_chemistry
         chem_change = 0
 
-        if (not(p1 in player_rating)):
-            player_rating[p1] = 0
-        if (not(p2 in player_rating)):
-            player_rating[p2] = 0
+        if (p1 not in player_rating):
+            player_rating.update({p1:0})
+        if (p2 not in player_rating):
+            player_rating.update({p2:0})
 
         p1_change = player_rating[p1] - prev_player_rating[p1]
         p2_change = player_rating[p2] - prev_player_rating[p2]
@@ -152,10 +165,9 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
-        if (not(player_pair in player_chemistry)):
-            if (not(temp_pair in player_chemistry)):
-                var = (0.5 + chem_change)
-                player_chemistry.update({temp_pair: var})
+        if (player_pair not in player_chemistry):
+            if (temp_pair not in player_chemistry):
+                continue
             else:
                 var = player_chemistry[temp_pair] + chem_change
                 player_chemistry.update({temp_pair: var})
@@ -170,26 +182,25 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
         temp_pair = (p2, p1)
         chem_change = 0
 
-        if (not(p1 in player_rating)):
-            player_rating[p1] = 0
-        if (not(p2 in player_rating)):
-            player_rating[p2] = 0
+        if (p1 not in player_rating):
+            player_rating.update({p1:0})
+        if (p2 not in player_rating):
+            player_rating.update({p2:0})
 
         p1_change = player_rating[p1] - prev_player_rating[p1]
         p2_change = player_rating[p2] - prev_player_rating[p2]
 
         # If ratings of both players either increases or decreases differently then we increase
-        if ((p1_change < 0 and p2_change < 0) or (p1_change > 0 and p2_change > 0)):
+        if ((p1_change <= 0 and p2_change <= 0) or (p1_change >= 0 and p2_change >= 0)):
             chem_change = (abs(p1_change) + abs(p2_change)) / 2
         # If ratings of both players increases or decreases same way , then we reduce
-        elif ((p1_change < 0 and p2_change > 0) or (p1_change > 0 and p2_change < 0)):
+        elif ((p1_change <= 0 and p2_change >= 0) or (p1_change >= 0 and p2_change <= 0)):
             chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
-        if (not(player_pair in player_chemistry)):
-            if (not(temp_pair in player_chemistry)):
-                var = (0.5 + chem_change)
-                player_chemistry.update({temp_pair: var})
+        if (player_pair not in player_chemistry):
+            if (temp_pair not in player_chemistry):
+                continue
             else:
                 var = player_chemistry[temp_pair] + chem_change
                 player_chemistry.update({temp_pair: var})
@@ -206,26 +217,25 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
         temp_pair = (p2, p1)
         chem_change = 0
 
-        if (not(p1 in player_rating)):
-            player_rating[p1] = 0
-        if (not(p2 in player_rating)):
-            player_rating[p2] = 0
+        if (p1 not in player_rating):
+            player_rating.update({p1:0})
+        if (p2 not in player_rating):
+            player_rating.update({p2:0})
 
         p1_change = player_rating[p1] - prev_player_rating[p1]
         p2_change = player_rating[p2] - prev_player_rating[p2]
 
         # If ratings of both teams either increases or decreases differently then we increase
-        if ((p1_change < 0 and p2_change > 0) or (p1_change > 0 and p2_change < 0)):
+        if ((p1_change <= 0 and p2_change >= 0) or (p1_change >= 0 and p2_change <=0)):
             chem_change = (abs(p1_change) + abs(p2_change)) / 2
         # If ratings of both teams increases or decreases same way , then we reduce
-        elif ((p1_change > 0 and p2_change > 0) or (p1_change < 0 and p2_change < 0)):
-            chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
+        elif ((p1_change >= 0 and p2_change > 0) or (p1_change <= 0 and p2_change <= 0)):
+            chem_change = (-1 * ((abs(p1_change) + abs(p2_change)) / 2))
 
         # Updating the player chemistry required
-        if (not(player_pair in player_chemistry)):
-            if (not(temp_pair in player_chemistry)):
-                var = (0.5 + chem_change)
-                player_chemistry.update({temp_pair: var})
+        if (player_pair not in player_chemistry):
+            if (temp_pair not in player_chemistry):
+                continue
             else:
                 var = player_chemistry[temp_pair] + chem_change
                 player_chemistry.update({temp_pair: var})
@@ -233,7 +243,6 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             var = player_chemistry[player_pair] + chem_change
             player_chemistry.update({player_pair: var})
         
-    print(player_chemistry)
     return player_chemistry
 
 

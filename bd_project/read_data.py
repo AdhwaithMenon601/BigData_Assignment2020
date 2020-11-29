@@ -32,6 +32,12 @@ player_profile = None
 
 # Initialises the schema
 def init_profile():
+    """
+        init_profile : Initalises the player profile
+
+        Returns :
+        player_profile {df} -- Dataframe of profile
+    """
     profile_schema = StructType([
         StructField('PlayerId', IntegerType(), True),
         StructField('Name', StringType(), True),
@@ -69,6 +75,9 @@ def func(rdd):
     global player_profile 
     global player_rating
     global player_chemistry
+
+    # To insert into the player profile dataframe , we need to create a new df
+    # And union this with the player profile
 
     # Store the previous player ratings
     prev_player_rating = player_rating.copy()

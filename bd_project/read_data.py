@@ -87,7 +87,8 @@ def process_record(rdd):
     player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
     player_ratings = player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
-    print(player_chemistry)
+    for it in player_chemistry:
+        print("{0:.5f}".format(player_chemistry[it]))
     # It is getting updated , but few only are due to the massive size of the pairs dataset
     '''
         (49876, 8066)

@@ -127,10 +127,13 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
 
     # Compute chemistry for players of individual team
     # First for team 1
+    var = 0
     for player_pair in itertools.combinations(team_player_dict[unique_teams[0]], 2):
         # Since these are for the same team , chemistry is updated as such
         p1, p2 = player_pair
         temp_pair = (p2, p1)
+        v = player_pair in player_chemistry
+        s = temp_pair in player_chemistry
         chem_change = 0
 
         if (not(p1 in player_rating)):
@@ -146,16 +149,19 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = (abs(p1_change) + abs(p2_change)) / 2
         # If ratings of both players increases or decreases same way , then we reduce
         elif ((p1_change <= 0 and p2_change >= 0) or (p1_change >= 0 and p2_change <= 0)):
-            chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
+            chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
         if (not(player_pair in player_chemistry)):
             if (not(temp_pair in player_chemistry)):
-                player_chemistry[player_pair] = 0.5
+                var = (0.5 + chem_change)
+                player_chemistry.update({temp_pair: var})
             else:
-                player_chemistry[temp_pair] += chem_change
+                var = player_chemistry[temp_pair] + chem_change
+                player_chemistry.update({temp_pair: var})
         else:
-            player_chemistry[player_pair] += chem_change
+            var = player_chemistry[player_pair] + chem_change
+            player_chemistry.update({player_pair: var})
 
     # Next for team 2
     for player_pair in itertools.combinations(team_player_dict[unique_teams[1]], 2):
@@ -177,16 +183,20 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = (abs(p1_change) + abs(p2_change)) / 2
         # If ratings of both players increases or decreases same way , then we reduce
         elif ((p1_change < 0 and p2_change > 0) or (p1_change > 0 and p2_change < 0)):
-            chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
+            chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
         if (not(player_pair in player_chemistry)):
             if (not(temp_pair in player_chemistry)):
-                player_chemistry[player_pair] = 0.5
+                var = (0.5 + chem_change)
+                player_chemistry.update({temp_pair: var})
             else:
-                player_chemistry[temp_pair] += chem_change
+                var = player_chemistry[temp_pair] + chem_change
+                player_chemistry.update({temp_pair: var})
         else:
-            player_chemistry[player_pair] += chem_change
+            var = player_chemistry[player_pair] + chem_change
+            player_chemistry.update({player_pair: var})
+    
 
     # Next for combined of teams 1 and teams 2
     combined_team_list = [(i, j) for i in team_player_dict[unique_teams[0]]
@@ -209,17 +219,21 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
             chem_change = (abs(p1_change) + abs(p2_change)) / 2
         # If ratings of both teams increases or decreases same way , then we reduce
         elif ((p1_change > 0 and p2_change > 0) or (p1_change < 0 and p2_change < 0)):
-            chem_change = -((abs(p1_change) + abs(p2_change)) / 2)
+            chem_change = -1 * ((abs(p1_change) + abs(p2_change)) / 2)
 
         # Updating the player chemistry required
         if (not(player_pair in player_chemistry)):
             if (not(temp_pair in player_chemistry)):
-                player_chemistry[player_pair] = 0.5
+                var = (0.5 + chem_change)
+                player_chemistry.update({temp_pair: var})
             else:
-                player_chemistry[temp_pair] += chem_change
+                var = player_chemistry[temp_pair] + chem_change
+                player_chemistry.update({temp_pair: var})
         else:
-            player_chemistry[player_pair] += chem_change
+            var = player_chemistry[player_pair] + chem_change
+            player_chemistry.update({player_pair: var})
         
+    print(player_chemistry)
     return player_chemistry
 
 

@@ -108,5 +108,24 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
         # Updating the player chemistry required
         player_chemistry[player_pair] += chem_change
 
+def ret_players(match_df):
+
+    team_id = list(match_df['teamsData'].keys())
+
+    # Bench information for the team
+    bench_1 = match_df['teamsData'][team_id[0]]['formation']['bench']
+    bench_2 = match_df['teamsData'][team_id[1]]['formation']['bench']
+    bench_id_1 = [id['playerId'] for id in bench_1]
+    bench_id_2 = [id['playerId'] for id in bench_2]
+
+    # Lineup information for the teams
+    lineup_1 = match_df['teamsData'][team_id[0]]['formation']['lineup']
+    lineup_2 = match_df['teamsData'][team_id[1]]['formation']['lineup']
+    lineup_id_1 = [player['playerId'] for player in lineup_1]
+    lineup_id_2 = [player['playerId'] for player in lineup_2]
+
+    # Team players for each team
+    team_1 = bench_id_1 + lineup_id_1
+    team_2 = bench_id_2 + lineup_id_2
 
 

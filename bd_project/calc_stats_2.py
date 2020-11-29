@@ -5,6 +5,71 @@ import gc
 from pyspark.sql import functions as func
 from pyspark.sql.types import BooleanType
 
+# returns player contribution for players fo each team
+def player_contribution_dict(value,dtime,player_contribution,players_pass,players_duel,players_kick,players_shot):
+	"""
+	duration=match_df.collect()[0].duration
+	if duration=="Regular":
+		dtime=90
+	else:
+		dtime=90+30
+	team_data=match_df.select("teamsData").collect()[0].asDict().values()
+	"""
+	#print(team_data)
+	#print(value)
+	value=value["formation"]
+	subs=value["substitutions"]
+	subs_out={}
+	subs_in={}
+	for i in subs:
+		subs_out[i["playerOut"]]=i["minute"]
+		subs_in[i["playerIn"]]=i["minute"]	
+	line_up=value["lineup"]
+	players={}
+	for i in line_up:
+		pid=i["playerId"]
+		if pid not in players:
+			if pid not in subs_out:
+				players[pid]=dtime
+			else:
+				players[pid]=subs_out[pid]
+	for i in subs_in:
+		if i not in players:
+			players[i]=dtime-subs_in[i]
+	#players_contribution={1:1,2:2,3:3}
+	for i in players:
+		cont=0
+		if i in players_pass:
+			cont+=players_pass[i]
+		if i in players_duel:
+			cont+=players_duel[i]
+		if i in players_kick:
+			cont+=players_kick[i]
+		if i in players_shot:
+			cont+=players_shot[i]
+		cont=cont/4
+		if players[i]==dtime:
+			cont*=1.05
+		else:
+			cont*=(players[i]/90)
+		player_contribution[i]=cont
+	return player_contribution
+
+# returns player contribution for all players
+def player_contribution_main(match_df,players_pass,players_duel,players_kick,players_shot):
+	duration=match_df["duration"]
+	if duration=="Regular":
+		dtime=90
+	else:
+		dtime=90+30
+	team_data=match_df["teamsData"].values()
+	player_contribution={}
+	for i in team_data:
+		player_contribution_dict(i,dtime,player_contribution,players_pass,players_duel,players_kick,players_shot)
+	return player_contribution
+	
+
+
 # Calculating the player rating
 def player_rating(player_rating, player_contribution, own_per_player, fouls_per_player):
     """

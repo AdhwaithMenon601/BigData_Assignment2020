@@ -284,7 +284,7 @@ def match_data():
     pass_ac = pass_accuracy(event_df)
     duel_eff = duel_effectiveness(event_df)
     free_eff = freekick_effectiveness(event_df)
-    shots_eff = shots_effectiveness(event_df)
+    shots_eff,goals_per_player = shots_effectiveness(event_df)
     fouls_per_player = fouls_loss(event_df)    
     own_per_player = own_goal(event_df)
 
@@ -298,7 +298,7 @@ def match_data():
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
 
     # Player profile, clustering and regression
-    player_profile = get_profile(player_profile, fouls_per_player, own_per_player, 3, pass_ac, shots_eff, teams_dict)
+    player_profile = get_profile(player_profile, fouls_per_player, own_per_player,goals_per_player, pass_ac, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
     make_model(regr_player)
 

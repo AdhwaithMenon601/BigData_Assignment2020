@@ -18,6 +18,12 @@ profile_schema = None
 player_profile = None
 regr_player = None
 
+# Globals for records
+teams = None
+players = None
+match_count = 0
+event_rows = []
+
 def init_regr():
     regr_schema = StructType([
         StructField('id', IntegerType(), True),
@@ -54,6 +60,23 @@ def init_profile():
     player_profile = {}
 
     return player_profile
+
+def filter_players(teams_dict, players_list):
+
+    for key in teams_dict:
+
+        # Going over the match players
+        id_list = teams_dict[key]
+        for item in id_list:
+
+            # Checking if match player doesnt exist
+            if item not in players_list:
+                id_list.remove(item)
+
+        # Reassigning value to dict
+        teams_dict.update({key : id_list})
+
+    return teams_dict
 
 # Function for player profile
 def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac, shots_eff, teams_dict):
@@ -139,31 +162,106 @@ def linreg_predict(player_profile, player_ratings, cur_date, teams_dict, regr_pl
 
     return final_df
 
-def process_record(rdd):
+# def process_record(rdd):
 
-    # If RDD is empty, move on
-    if rdd.isEmpty():
-        print("RDD is empty!")
-        return
+#     # If RDD is empty, move on
+#     if rdd.isEmpty():
+#         print("RDD is empty!")
+#         return
 
-    # Separating Match and Event JSONs
-    match_json = rdd.first()
-    event_json = rdd.filter(lambda x : x != match_json).map(lambda x : eval(x))
-    event_df = event_json.map(lambda x : Row(**x)).toDF()
+#     # Separating Match and Event JSONs
+#     match_json = rdd.first()
+#     event_json = rdd.filter(lambda x : x != match_json).map(lambda x : eval(x))
+#     event_df = event_json.map(lambda x : Row(**x)).toDF()
 
-    match_json = eval(rdd.first())
-    cur_date = match_json["dateutc"]
-    print(cur_date)
+#     match_json = eval(rdd.first())
+#     cur_date = match_json["dateutc"]
+#     print(cur_date)
 
-    # match_df = rdd.filter(lambda x : x == match_json).map(lambda x : eval(x))
-    # match_df = match_df.map(lambda x : Row(**x)).toDF()
+#     # match_df = rdd.filter(lambda x : x == match_json).map(lambda x : eval(x))
+#     # match_df = match_df.map(lambda x : Row(**x)).toDF()
 
 
+#     # Need to use global variable in this case
+#     global player_profile 
+#     global player_ratings
+#     global player_chemistry
+#     global regr_player
+
+#     # To insert into the player profile dataframe , we need to create a new df
+#     # And union this with the player profile
+#     """
+#     new_row = [(1134,'abc', 5, 6, 7, 0.56, 0)]
+#     new_df = sp_sess.createDataFrame(new_row, profile_schema)
+#     player_profile = player_profile.union(new_df)
+#     """
+
+#     # Store the previous player ratings
+#     prev_player_rating = player_ratings.copy()
+
+#     # Calling ret_players
+#     teams_dict = ret_players(match_json)
+
+#     # Calculating the metrics
+#     pass_ac = pass_accuracy(event_df)
+#     duel_eff = duel_effectiveness(event_df)
+#     free_eff = freekick_effectiveness(event_df)
+#     shots_eff = shots_effectiveness(event_df)
+#     fouls_per_player = fouls_loss(event_df)    
+#     own_per_player = own_goal(event_df)
+#     player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
+#     player_ratings = player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
+#     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
+#     player_profile = get_profile(player_profile, fouls_per_player, own_per_player, 3, pass_ac, shots_eff, teams_dict)
+#     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
+#     make_model(regr_player)
+#     # regr_player.show()
+#     """
+#     for i in player_profile:
+#         print(player_profile[i])
+#     """
+#     """for it in player_chemistry:
+#         print("{0:.5f}".format(player_chemistry[it]))"""
+#     # It is getting updated , but few only are due to the massive size of the pairs dataset
+
+def match_data():
+
+    
     # Need to use global variable in this case
     global player_profile 
+    global event_rows
     global player_ratings
     global player_chemistry
-    global regr_player
+    global match_count
+    global players
+    global teams
+
+    # If only match data is present
+    if (len(event_rows) == 1):
+        return
+
+    # Separating the events and match data
+    match_df = event_rows[0]
+    events_list = event_rows[1 : -1]
+    
+    for i in range(len(events_list)):
+        sub_event = events_list[i]['subEventId']
+        time = events_list[i]['eventSec']
+
+        # Fixing subEventID
+        if sub_event == '':
+            sub_event = 0
+
+        # Updating in dict
+        events_list[i].update({'subEventId' : int(sub_event)})
+        events_list[i].update({'eventSec' : float(time)})
+        
+    cur_date = match_df["dateutc"]
+
+    # Creating dataframe from events list
+    event_df = sp_sess.createDataFrame(events_list)
+    # event_df = event_df.map(lambda x : Row(**x)).toDF()
+    event_rows = [event_rows[-1]]
 
     # To insert into the player profile dataframe , we need to create a new df
     # And union this with the player profile
@@ -176,30 +274,71 @@ def process_record(rdd):
     # Store the previous player ratings
     prev_player_rating = player_ratings.copy()
 
-    # Calling ret_players
-    teams_dict = ret_players(match_json)
+    # Getting player IDs from the players.csv
+    players_id = players.select('Id').rdd.flatMap(lambda x : x).collect()
 
-    # Calculating the metrics
+    # Calling ret_players
+    teams_dict = filter_players(ret_players(match_df), players_id)
+
+    # Calculating metrics 1
     pass_ac = pass_accuracy(event_df)
     duel_eff = duel_effectiveness(event_df)
     free_eff = freekick_effectiveness(event_df)
     shots_eff = shots_effectiveness(event_df)
     fouls_per_player = fouls_loss(event_df)    
     own_per_player = own_goal(event_df)
-    player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
+
+    # Calculating metrics 2
+    player_contribution = player_contribution_main(match_df, pass_ac, duel_eff, free_eff, shots_eff)
+
+    if (player_contribution == None):
+        return
+        
     player_ratings = player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
+
+    # Player profile, clustering and regression
     player_profile = get_profile(player_profile, fouls_per_player, own_per_player, 3, pass_ac, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
     make_model(regr_player)
-    # regr_player.show()
-    """
-    for i in player_profile:
-        print(player_profile[i])
-    """
-    """for it in player_chemistry:
-        print("{0:.5f}".format(player_chemistry[it]))"""
+
+    
+    # for it in player_chemistry:
+    #     print("{0:.5f}".format(player_chemistry[it]))
     # It is getting updated , but few only are due to the massive size of the pairs dataset
+    '''
+        (49876, 8066)
+        (49876, 217078)
+        (93, 254898)
+        (93, 3324)
+        (93, 212651)
+        (93, 135103)
+        (93, 227756)
+    '''
+
+def process_record(rdd):
+
+    # If RDD is empty, move on
+    if rdd.isEmpty():
+        return
+
+    # Using global variables
+    global event_rows
+    global match_count
+
+    match_count += 1
+    print('Current Match:', match_count)
+
+    # Collecting match and event data
+    stream_json = rdd.map(lambda x : eval(x))
+    for row in stream_json.collect():
+        event_rows.append(row)
+
+        # Match data encountered
+        if 'teamsData' in row.keys():
+            match_data()
+        else:
+            continue
 
 if __name__ == '__main__':
 

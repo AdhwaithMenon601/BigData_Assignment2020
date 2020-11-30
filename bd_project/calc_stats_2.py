@@ -21,12 +21,16 @@ def player_contribution_dict(value, dtime, player_contribution, players_pass, pl
     # print(value)
     value = value["formation"]
     subs = value["substitutions"]
+    line_up = value["lineup"]
+
+    if not (subs != 'null' and line_up != 'null' and player_contribution != None):
+        return None
+
     subs_out = {}
     subs_in = {}
     for i in subs:
         subs_out[i["playerOut"]] = i["minute"]
         subs_in[i["playerIn"]] = i["minute"]
-    line_up = value["lineup"]
     players = {}
     for i in line_up:
         pid = i["playerId"]

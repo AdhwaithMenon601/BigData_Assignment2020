@@ -31,11 +31,55 @@ def init_profile():
         StructField('Goals', IntegerType(), True),
         StructField('Own Goals', IntegerType(), True),
         StructField('PassAccuracy', FloatType(), True),
-        StructField('ShotsOnTarget', IntegerType(), True)
+        StructField('ShotsOnTarget', IntegerType(), True),
+        StructField('Matches', IntegerType(), True)
     ])
 
     # Creating the empty dataframe
-    player_profile = sp_sess.createDataFrame(sp_context.emptyRDD(), profile_schema)
+    player_profile = {}
+
+    return player_profile
+
+# Function for player profile
+def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac, shots_eff, teams_dict):
+    # Create a new row in the dataframe and check if player id exists
+    # If the player id does not exist , simply append and add
+    # Else we must remove that row and join with other dataframe
+    # unique_teams = teams_dict.keys()
+    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
+
+    for i in teams_dict:
+        for player_id in teams_dict[i]:
+            # Checking for value in the dictionary
+            if (player_id not in fouls_per_player):
+                fouls_per_player.update({player_id:0})
+            
+            if (player_id not in own_per_player):
+                own_per_player.update({player_id:0})
+            
+            if (player_id not in pass_ac):
+                pass_ac.update({player_id:0})
+            
+            if (player_id not in shots_eff):
+                shots_eff.update({player_id:0})
+            
+            '''
+            if (player_id not in goals_per_player):
+                fouls_per_player.update({player_id:0})
+            '''
+
+            name_df = players.filter(players['Id'] == player_id)
+            player_name = name_df.select("name").collect()[0].name
+            
+            matches = 0
+            if (player_id not in player_profile):
+                matches = 1
+            else:
+                matches = player_profile[player_id][6] + 1
+
+
+            new_list = [int(fouls_per_player[player_id]), player_name, int(goals_per_player), int(own_per_player[player_id]), int(pass_ac[player_id]), int(shots_eff[player_id]), matches]
+            player_profile.update({player_id : new_list})
 
     return player_profile
 
@@ -87,18 +131,12 @@ def process_record(rdd):
     player_contribution = player_contribution_main(match_json, pass_ac, duel_eff, free_eff, shots_eff)
     player_ratings = player_rating(player_ratings, player_contribution, own_per_player, fouls_per_player)
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
-    for it in player_chemistry:
-        print("{0:.5f}".format(player_chemistry[it]))
+    player_profile = get_profile(player_profile, fouls_per_player, own_per_player, 3, pass_ac, shots_eff, teams_dict)
+    for i in player_profile:
+        print(player_profile[i])
+    """for it in player_chemistry:
+        print("{0:.5f}".format(player_chemistry[it]))"""
     # It is getting updated , but few only are due to the massive size of the pairs dataset
-    '''
-        (49876, 8066)
-        (49876, 217078)
-        (93, 254898)
-        (93, 3324)
-        (93, 212651)
-        (93, 135103)
-        (93, 227756)
-    '''
 
 if __name__ == '__main__':
 

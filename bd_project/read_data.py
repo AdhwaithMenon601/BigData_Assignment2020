@@ -191,7 +191,8 @@ def process_record(rdd):
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
     player_profile = get_profile(player_profile, fouls_per_player, own_per_player, 3, pass_ac, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
-    regr_player.show()
+    make_model(regr_player)
+    # regr_player.show()
     """
     for i in player_profile:
         print(player_profile[i])
@@ -211,6 +212,7 @@ if __name__ == '__main__':
     sp_context.addFile("calc_stats_1.py")
     sp_context.addFile("calc_stats_2.py")
     sp_context.addFile("init_stats.py")
+    sp_context.addFile("model.py")
 
     # Reading the CSV files using Spark session
     players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
@@ -220,6 +222,7 @@ if __name__ == '__main__':
     from calc_stats_1 import *
     from calc_stats_2 import *
     from init_stats import *
+    from model import *
 
     # Initializing the player chem and ratings
     player_chemistry = init_chemistry(players)

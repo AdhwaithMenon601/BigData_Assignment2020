@@ -12,8 +12,10 @@ from pyspark.sql.types import *
 import datetime
 
 # Find rating using regression
-def find_rating(players, player_id, cur_date):
+def find_rating(player_id, cur_date):
     sp_sess = SparkSession.builder.appName('Regr_Data').getOrCreate()
+    play_path = "hdfs://localhost:9000/players.csv"
+    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
     assembler = VectorAssembler(inputCols = ['diff'],outputCol = 'features')
     name_df = players.filter(players['Id'] == player_id)
     player_date = name_df.select("birthDate").collect()[0].birthDate

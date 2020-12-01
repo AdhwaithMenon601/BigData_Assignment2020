@@ -13,12 +13,12 @@ def prepare_dataframe(player_profile):
     sp_sess = SparkSession.builder.appName('Read_Data').getOrCreate()
     player_new_profile = []
     tempd = {}
-    print(player_profile)
-    r_schema = StructType([StructField('player_id', IntegerType(), True), StructField('fouls', IntegerType(), True), StructField('name', StringType(), True), StructField('goals', IntegerType(
+    #print(player_profile)
+    r_schema = StructType([StructField('player_id', StringType(), True), StructField('fouls', IntegerType(), True), StructField('name', StringType(), True), StructField('goals', IntegerType(
     ), True), StructField('owngoals', IntegerType(), True), StructField('pass_acc', FloatType(), True), StructField('shots', FloatType(), True), StructField('matches', IntegerType(), True)])
     for i in player_profile:
         tempd = {}
-        tempd["player_id"] = int(i)
+        tempd["player_id"] = i
         temp = player_profile[i]
         tempd["fouls"] = temp[0]
         tempd["name"] = temp[1]
@@ -58,13 +58,15 @@ def clustering(player_profile):
 
 
 def predict(player_chem, player_profile, player_ratings, team1, team2):
+    #print(team1)
+    #print(team2)
     player_coeff1 = {}
     lessthan1 = []
     for i in team1:
         player = i
         team1.remove(i)
         total1 = 0
-        if player_profile[i][6] >= 5:
+        if  i in player_profile and player_profile[i][6] >= 5:
             for j in team1:
                 if (i, j) in player_chem:
                     total1 += player_chem[(i, j)]
@@ -83,7 +85,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2):
         player = i
         team2.remove(i)
         total2 = 0
-        if player_profile[i][6] >= 5:
+        if i in player_profile and player_profile[i][6] >= 5:
             for j in team2:
                 if (i, j) in player_chem:
                     total2 += player_chem[(i, j)]
@@ -98,6 +100,8 @@ def predict(player_chem, player_profile, player_ratings, team1, team2):
         tot2 += (player_coeff1[i]*find_rating(i, "2020-08-11"))
     player_df = prepare_dataframe(player_profile)
     predictions, centers = clustering(player_df)
+    #print("LESSTHAN1 ",lessthan1)
+    
     for i in lessthan1:
         tempdf = predictions.filter(predictions["player_id"] == i)
         cluster_id = predictions.filter(

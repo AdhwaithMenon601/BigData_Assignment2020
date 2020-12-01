@@ -65,19 +65,23 @@ def predict_helper(user):
         team2_roles.append(i.role)
 
     flag = 0
-    # for i in teams_dict[t1]:
-    #     cur = find_rating(i, cur_date)
-    #     if (cur < 0.2):
-    #         print("{} has retired".format(i))
-    #         #print("Match is not valid")
-    #         flag = 1
+    team1_retired = []
+    team2_retired = []
+    for i in teams_dict[t1]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            #print("{} has retired".format(i))
+            #print("Match is not valid")
+            team1_retired.append(i)
+            flag = 1
 
-    # for i in teams_dict[t2]:
-    #     cur = find_rating(i, cur_date)
-    #     if (cur < 0.2):
-    #         print("{} has retired".format(i))
-    #         # print("Match is not valid")
-    #         flag = 1
+    for i in teams_dict[t2]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            #print("{} has retired".format(i))
+            # print("Match is not valid")
+            team2_retired.append(i)
+            flag = 1
     # def predict(player_chem, player_profile, player_ratings, team1, team2):
     if isvalid(team1_roles) and isvalid(team2_roles) and flag == 0:
         j1 = open("player_profile.json", "r")
@@ -89,15 +93,41 @@ def predict_helper(user):
         j3 = open("player_rate.json", "r")
         j3_data = j3.read()
         player_rate = eval(j3_data)
-        print(player_profile)
-        print(predict(player_chem, player_profile,
-                      player_rate, teams_dict[t1], teams_dict[t2]))
+        temp = predict(player_chem, player_profile, player_rate, teams_dict[t1], teams_dict[t2])
+        team_1_prediction,team_2_prediction = temp[0],temp[1]
+        dictionary = {
+            "team1":
+            {
+                "name":user['team1']['name'],
+                "winning chance":team_1_prediction
+            },
+            "team2":
+            {
+                "name":user['team2']['name'],
+                "winning chance":team_2_prediction
+            }
+        }
+        json_object = json.dumps(dictionary, indent=4)
+        # Writing to sample.json
+        with open("output_req_1.json", "w") as outfile:
+            outfile.write(json_object)
+    elif flag==1:
+        dictionary = {
+            "isInvalid": 'True',
+            "team1_retired_players":team1_retired,
+            "team2_retired_players":team2_retired,
+            }
+        json_object = json.dumps(dictionary, indent=4)
+        # Writing to sample.json
+        with open("output_req_1.json", "w") as outfile:
+            outfile.write(json_object)
+
     else:
         dictionary = {"isInvalid": 'True'}
         json_object = json.dumps(dictionary, indent=4)
         # Writing to sample.json
         with open("output_req_1.json", "w") as outfile:
-            outfile.write(json_object
+            outfile.write(json_object)
 
 def player_profile_helper(user):
     

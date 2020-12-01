@@ -54,7 +54,7 @@ def pass_accuracy(event_df):
     for player in player_stats:
         stats = player_stats[player]
         acc = (stats[1] + (stats[0] * 2)) / \
-            ((stats[1] + stats[3]) + (stats[1] + stats[3]))
+            ((stats[1] + stats[3]) + ((stats[0] + stats[2]) * 2))
         player_stats.update({player: acc})
 
     return player_stats

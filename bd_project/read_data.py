@@ -503,6 +503,10 @@ def process_record(rdd):
     match_count += 1
     print('Current Match:', match_count)
 
+    # Stopping the stream
+    if match_count > 381:
+        ssp_context.stop()
+
     # Collecting match and event data
     stream_json = rdd.map(lambda x : eval(x))
     for row in stream_json.collect():
@@ -513,6 +517,35 @@ def process_record(rdd):
             match_data()
         else:
             continue
+def write_to_file(file_name, content):
+    """
+    write_to_file : To write to JSON file
+
+    Arguments:
+        file_name {str} -- File name for JSON
+        content {str} -- JSON string
+    """
+
+    with open(file_name, 'r') as file:
+        file.write(content)
+
+# Saving all Data to storage
+def save_data():
+    """
+    save_data : Saves the data to HDFS
+    """
+
+    # Creating JSON strings using JSON
+    player_chem_json = json.dumps(player_chemistry, indent=4)
+    player_rate_json = json.dumps(player_ratings, indent=4)
+    player_prof_json = json.dumps(player_profile, indent=4)
+    match_details_json = json.dumps(match_details, indent=4)
+
+    # Writing the JSON strings to files
+    write_to_file('player_chem.json', player_chem_json)
+    write_to_file('player_rate.json', player_rate_json)
+    write_to_file('player_profile.json', player_prof_json)
+    write_to_file('match_details.json', match_details_json)
 
 if __name__ == '__main__':
 
@@ -577,3 +610,6 @@ if __name__ == '__main__':
     data.foreachRDD(process_record)
     ssp_context.start()
     ssp_context.awaitTermination()
+
+    # Saving the data to HDFS
+    save_data()

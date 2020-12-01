@@ -23,14 +23,15 @@ def isvalid(roles):
         return False
 # Prediction helpers
 def predict_helper(user):
+
     players_name_team_1 = []
     players_name_team_2 = []
-    #for i in user['team1']
+    # for i in user['team1']
     temp = list(user['team1'])
     temp = temp[1:]
     cur_date = user['date']
     for i in temp:
-        #print(user['team1'][i].encode('utf-8')
+        # print(user['team1'][i].encode('utf-8')
         players_name_team_1.append(user['team1'][i])
     temp = list(user['team2'])
     temp = temp[1:]
@@ -41,15 +42,15 @@ def predict_helper(user):
         players_name_team_2.append(user['team2'][i])
     # Reading the CSV files using Spark session
     players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
-    #print(players_name_team_1)
-    team_1 = players.filter(players["name"].isin(players_name_team_1)== True)
+    # print(players_name_team_1)
+    team_1 = players.filter(players["name"].isin(players_name_team_1) == True)
     team_1.show()
     team_2 = players.filter(players["name"].isin(players_name_team_2))
     team1_id = team_1.select("Id").collect()
     team2_id = team_2.select("Id").collect()
     role_team1 = team_1.select('role').collect()
     role_team2 = team_2.select('role').collect()
-    teams_dict = {t1:[], t2:[]}
+    teams_dict = {t1: [], t2: []}
     team1_roles = []
     team2_roles = []
     for i in team1_id:
@@ -62,30 +63,41 @@ def predict_helper(user):
         team1_roles.append(i.role)
     for i in role_team2:
         team2_roles.append(i.role)
-    
+
     flag = 0
-    for i in teams_dict[t1]:
-        cur = find_rating(i, cur_date)
-        if (cur < 0.2):
-            print("{} has retired".format(i))
-            #print("Match is not valid")
-            flag = 1
+    # for i in teams_dict[t1]:
+    #     cur = find_rating(i, cur_date)
+    #     if (cur < 0.2):
+    #         print("{} has retired".format(i))
+    #         #print("Match is not valid")
+    #         flag = 1
 
-    for i in teams_dict[t2]:
-        cur = find_rating(i, cur_date)
-        if (cur < 0.2):
-            print("{} has retired".format(i))
-            # print("Match is not valid")
-            flag = 1
-
+    # for i in teams_dict[t2]:
+    #     cur = find_rating(i, cur_date)
+    #     if (cur < 0.2):
+    #         print("{} has retired".format(i))
+    #         # print("Match is not valid")
+    #         flag = 1
+    # def predict(player_chem, player_profile, player_ratings, team1, team2):
     if isvalid(team1_roles) and isvalid(team2_roles) and flag == 0:
-        print("We will be calling the function")
+        j1 = open("player_profile.json", "r")
+        j1_data = j1.read()
+        player_profile = eval(j1_data)
+        j2 = open("player_chem.json", "r")
+        j2_data = j2.read()
+        player_chem = eval(j2_data)
+        j3 = open("player_rate.json", "r")
+        j3_data = j3.read()
+        player_rate = eval(j3_data)
+        print(player_profile)
+        print(predict(player_chem, player_profile,
+                      player_rate, teams_dict[t1], teams_dict[t2]))
     else:
-        dictionary  = {"isInvalid":'True'}
-        json_object = json.dumps(dictionary, indent = 4) 
-        # Writing to sample.json 
-        with open("output_req_1.json", "w") as outfile: 
-            outfile.write(json_object) 
+        dictionary = {"isInvalid": 'True'}
+        json_object = json.dumps(dictionary, indent=4)
+        # Writing to sample.json
+        with open("output_req_1.json", "w") as outfile:
+            outfile.write(json_object
 
 def player_profile_helper(user):
     

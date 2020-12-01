@@ -80,13 +80,13 @@ def predict_helper(user):
     #         flag = 1
     # def predict(player_chem, player_profile, player_ratings, team1, team2):
     if isvalid(team1_roles) and isvalid(team2_roles) and flag == 0:
-        j1 = open("player_profile.json", "r")
+        j1 = open("hdfs://localhost:9000/player_profile.json", "r")
         j1_data = j1.read()
         player_profile = eval(j1_data)
-        j2 = open("player_chem.json", "r")
+        j2 = open("hdfs://localhost:9000/player_chem.json", "r")
         j2_data = j2.read()
         player_chem = eval(j2_data)
-        j3 = open("player_rate.json", "r")
+        j3 = open("hdfs://localhost:9000/player_rate.json", "r")
         j3_data = j3.read()
         player_rate = eval(j3_data)
         print(player_profile)
@@ -111,7 +111,7 @@ def player_profile_helper(user):
     height = player_info.select('height').collect()[0].height
     weight = player_info.select('weight').collect()[0].weight
     player_id = player_info.select('Id').collect()[0].Id
-    with open(hdfspath_for_player_profile, 'r') as file:
+    with open("hdfs://localhost:9000/player_profile.json", 'r') as file:
         content = file.read()
         players_dict = eval(content)
         for i in players_dict:
@@ -163,7 +163,7 @@ def match_data_helper(user):
     # process_stream(team1, team2, date)
     team_1 = team_1.select('name').collect()[0].name
     team_2 = team_2.select('name').collect()[0].name
-    with open("match_details.json", 'r') as file:
+    with open("hdfs://localhost:9000/match_details.json", 'r') as file:
         content = file.read()
         match_info = eval(content)
         for i in match_info:

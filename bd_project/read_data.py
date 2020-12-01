@@ -1,5 +1,6 @@
 import sys
 import json
+import random
 from pyspark.streaming import StreamingContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
@@ -111,9 +112,9 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             
             matches = 0
             if (player_id not in player_profile):
-                matches = 1
+                matches = 6
             else:
-                matches = player_profile[player_id][6] + 4
+                matches = player_profile[player_id][6] + 7
 
 
             new_list = [int(fouls_per_player[player_id]), player_name, int(goals_per_player[player_id]), int(own_per_player[player_id]), pass_ac[player_id], shots_eff[player_id], matches]
@@ -246,7 +247,7 @@ def match_data():
 
         # Generating random data
         for i in range(10):
-            tuple_dat = (random.randint(1000, 10000), random.randint(1000, 10000))
+            tuple_dat = (random.randint(1, 20), (random.random() * 10))
             rand_data.append(tuple_dat)
 
         # Creating the dataframe

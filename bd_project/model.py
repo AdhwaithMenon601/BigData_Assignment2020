@@ -27,7 +27,8 @@ def find_rating(player_id, cur_date):
     d2 = datetime.date(int(new_date2[0]), int(new_date2[1]), int(new_date2[2]))
 
     diff = abs(d2 - d1).days
-    my_rating = 1.000
+    diff /= 1000
+    my_rating = 8.00
     my_schema = StructType([
         StructField('diff', IntegerType(), True),
         StructField('rating', FloatType(), True)
@@ -57,18 +58,24 @@ def make_model(player_regr, initial_run):
 
         # Setting Old Model's weights
         old_model = LinearRegressionModel.load('reg_model')
+        print(old_model.coefficients)
         player_regr = player_regr.withColumn('weights', lit(old_model.coefficients[0]))
         check_data = player_regr.select("diff", "rating", 'weights')
+        check_data = check_data.withColumn('new_diff', check_data['diff'] / 1000)
+        check_data = check_data.withColumn('new_rating', check_data['rating'] * 10)
+        # check_data.show()
+
+        assembler_2 = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
 
         # Splitting the data
         train,test = check_data.randomSplit([0.7,0.3])
 
         # Transforming the data
-        train_df = assembler_1.transform(train)
-        test_df = assembler_1.transform(test)
+        train_df = assembler_2.transform(train)
+        test_df = assembler_2.transform(test)
 
         # LR Object
-        lr = LinearRegression(featuresCol='features', labelCol='rating', weightCol='weights')
+        lr = LinearRegression(featuresCol='features', labelCol='new_rating', weightCol='weights')
 
     else:
         check_data = player_regr.select("diff", "rating")

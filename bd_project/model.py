@@ -11,11 +11,13 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 import datetime
 
-# Find rating using regression
-def find_rating(players, player_id, cur_date):
+def find_rating(player_id, cur_date):
     sp_sess = SparkSession.builder.appName('Regr_Data').getOrCreate()
-    assembler = VectorAssembler(inputCols = ['diff'],outputCol = 'features')
+    play_path = "hdfs://localhost:9000/players.csv"
+    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
+    assembler = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
     name_df = players.filter(players['Id'] == player_id)
+    name_df.show()
     player_date = name_df.select("birthDate").collect()[0].birthDate
 
     new_date1 = player_date.split('-')
@@ -34,6 +36,9 @@ def find_rating(players, player_id, cur_date):
 
     new_df = sp_sess.createDataFrame([my_dict], my_schema)
 
+    new_df = new_df.withColumn('new_diff', new_df['diff'] / 1000)
+    new_df = new_df.withColumn('new_rating', new_df['rating'] * 10)
+
     test = assembler.transform(new_df)
     final_model = LinearRegressionModel.load('reg_model')
 
@@ -41,7 +46,8 @@ def find_rating(players, player_id, cur_date):
 
     req = res.predictions.select("prediction").rdd.flatMap(lambda x : x).collect()
 
-    return req[0]
+    final_res = req[0] / 10
+    return abs(final_res)
 
 # Code for linear regression model
 def make_model(player_regr, initial_run):

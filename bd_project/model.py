@@ -49,7 +49,6 @@ def find_rating(player_id, cur_date):
     req = res.predictions.select("prediction").rdd.flatMap(lambda x : x).collect()
 
     final_res = req[0] / 10
-    print(final_res)
     return abs(final_res)
 
 # Code for linear regression model

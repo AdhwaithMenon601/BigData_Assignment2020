@@ -303,13 +303,13 @@ def fill_match_info(match_details, match_df, teams_dict):
         player_id = i['playerId']
         name_df = players.filter(players['Id'] == player_id)
         player_name = name_df.select("name").collect()[0].name
-        if (('ownGoals' in i) and i['ownGoals'] > 0):
+        if (('ownGoals' in i) and int(i['ownGoals']) > 0):
             own_goals.append({"name":player_name, "team":t1, "number_of_goals":i['ownGoals']})
-        if (('goals' in i) and i['goals'] > 0):
+        if (('goals' in i) and int(i['goals']) > 0):
             goals.append({"name":player_name, "team":t1, "number_of_goals":i['goals']})
-        if (('yellowCards'in i) and i['yellowCards'] > 0):
+        if (('yellowCards'in i) and int(i['yellowCards']) > 0):
             yellow_cards.append({"name":player_name, "team":t1})
-        if (('redCards'in i) and i['redCards'] > 0):
+        if (('redCards'in i) and int(i['redCards']) > 0):
             red_cards.append({"name":player_name, "team":t1})
     
     # For bench of team 1
@@ -317,13 +317,13 @@ def fill_match_info(match_details, match_df, teams_dict):
         player_id = i['playerId']
         name_df = players.filter(players['Id'] == player_id)
         player_name = name_df.select("name").collect()[0].name
-        if (('ownGoals' in i) and i['ownGoals'] > 0):
+        if (('ownGoals' in i) and int(i['ownGoals']) > 0):
             own_goals.append({"name":player_name, "team":t1, "number_of_goals":i['ownGoals']})
-        if (('goals' in i) and i['goals'] > 0):
+        if (('goals' in i) and int(i['goals']) > 0):
             goals.append({"name":player_name, "team":t1, "number_of_goals":i['goals']})
-        if (('yellowCards'in i) and i['yellowCards'] > 0):
+        if (('yellowCards'in i) and int(i['yellowCards']) > 0):
             yellow_cards.append({"name":player_name, "team":t1})
-        if (('redCards'in i) and i['redCards'] > 0):
+        if (('redCards'in i) and int(i['redCards']) > 0):
             red_cards.append({"name":player_name, "team":t1})
     
     # Formation for lineup 2
@@ -331,13 +331,13 @@ def fill_match_info(match_details, match_df, teams_dict):
         player_id = i['playerId']
         name_df = players.filter(players['Id'] == player_id)
         player_name = name_df.select("name").collect()[0].name
-        if (('ownGoals' in i) and i['ownGoals'] > 0):
+        if (('ownGoals' in i) and int(i['ownGoals']) > 0):
             own_goals.append({"name":player_name, "team":t2, "number_of_goals":i['ownGoals']})
-        if (('goals' in i) and i['goals'] > 0):
+        if (('goals' in i) and int(i['goals']) > 0):
             goals.append({"name":player_name, "team":t2, "number_of_goals":i['goals']})
-        if (('yellowCards'in i) and i['yellowCards'] > 0):
+        if (('yellowCards'in i) and int(i['yellowCards']) > 0):
             yellow_cards.append({"name":player_name, "team":t2})
-        if (('redCards'in i) and i['redCards'] > 0):
+        if (('redCards'in i) and int(i['redCards']) > 0):
             red_cards.append({"name":player_name, "team":t2})
     
     # Formation for bench 2
@@ -345,13 +345,13 @@ def fill_match_info(match_details, match_df, teams_dict):
         player_id = i['playerId']
         name_df = players.filter(players['Id'] == player_id)
         player_name = name_df.select("name").collect()[0].name
-        if (('ownGoals' in i) and i['ownGoals'] > 0):
+        if (('ownGoals' in i) and int(i['ownGoals']) > 0):
             own_goals.append({"name":player_name, "team":t2, "number_of_goals":i['ownGoals']})
-        if (('goals' in i) and i['goals'] > 0):
+        if (('goals' in i) and int(i['goals']) > 0):
             goals.append({"name":player_name, "team":t2, "number_of_goals":i['goals']})
-        if (('yellowCards'in i) and i['yellowCards'] > 0):
+        if (('yellowCards'in i) and int(i['yellowCards']) > 0):
             yellow_cards.append({"name":player_name, "team":t2})
-        if (('redCards'in i) and i['redCards'] > 0):
+        if (('redCards'in i) and int(i['redCards']) > 0):
             red_cards.append({"name":player_name, "team":t2})
 
     new_match_data = {"date":req_date, "duration":duration, "winner":winner,\
@@ -469,8 +469,8 @@ def match_data():
     team1 = teams_dict[c[0]]
     team2 = teams_dict[c[1]]
 
-    if ('hasFormation' in match_df['teamsData']):
-        if (match_df['teamsData']['hasFormation'] == 1):
+    if ('hasFormation' in match_df['teamsData'][c[0]] and 'hasFormation' in match_df['teamsData'][c[1]]):
+        if (match_df['teamsData'][c[0]]['hasFormation'] == 1 and match_df['teamsData'][c[1]]['hasFormation'] == 1):
             match_details = fill_match_info(match_details, match_df, teams_dict)
     print(match_details)
 

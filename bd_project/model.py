@@ -12,10 +12,8 @@ from pyspark.sql.types import *
 import datetime
 
 # Find rating using regression
-def find_rating(player_id, cur_date):
+def find_rating(players, player_id, cur_date):
     sp_sess = SparkSession.builder.appName('Regr_Data').getOrCreate()
-    play_path = "hdfs://localhost:9000/players.csv"
-    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
     assembler = VectorAssembler(inputCols = ['diff'],outputCol = 'features')
     name_df = players.filter(players['Id'] == player_id)
     player_date = name_df.select("birthDate").collect()[0].birthDate
@@ -27,8 +25,7 @@ def find_rating(player_id, cur_date):
     d2 = datetime.date(int(new_date2[0]), int(new_date2[1]), int(new_date2[2]))
 
     diff = abs(d2 - d1).days
-    diff /= 1000
-    my_rating = 8.00
+    my_rating = 1.000
     my_schema = StructType([
         StructField('diff', IntegerType(), True),
         StructField('rating', FloatType(), True)
@@ -58,12 +55,12 @@ def make_model(player_regr, initial_run):
 
         # Setting Old Model's weights
         old_model = LinearRegressionModel.load('reg_model')
-        print(old_model.coefficients)
         player_regr = player_regr.withColumn('weights', lit(old_model.coefficients[0]))
         check_data = player_regr.select("diff", "rating", 'weights')
+
         check_data = check_data.withColumn('new_diff', check_data['diff'] / 1000)
         check_data = check_data.withColumn('new_rating', check_data['rating'] * 10)
-        # check_data.show()
+        check_data.show()
 
         assembler_2 = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
 

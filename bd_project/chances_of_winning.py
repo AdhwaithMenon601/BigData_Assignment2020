@@ -25,7 +25,7 @@ def prepare_dataframe(player_profile):
         tempd["goals"] = temp[2]
         tempd["owngoals"] = temp[3]
         tempd["pass_acc"] = float(temp[4])
-        tempd["shots"] = temp[5]
+        tempd["shots"] = float(temp[5])
         tempd["matches"] = temp[6]
         player_new_profile.append(tempd)
         print(tempd)

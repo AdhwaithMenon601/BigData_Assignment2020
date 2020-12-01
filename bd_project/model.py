@@ -17,14 +17,16 @@ def find_rating(player_id, cur_date):
     players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
     assembler = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
     name_df = players.filter(players['Id'] == player_id)
-    name_df.show()
+    
     player_date = name_df.select("birthDate").collect()[0].birthDate
 
     new_date1 = player_date.split('-')
-    new_date2 = player_date.split('-')
+    new_date2 = cur_date.split('-')
+
 
     d1 = datetime.date(int(new_date1[0]), int(new_date1[1]), int(new_date1[2]))
     d2 = datetime.date(int(new_date2[0]), int(new_date2[1]), int(new_date2[2]))
+
 
     diff = abs(d2 - d1).days
     my_rating = 1.000
@@ -47,6 +49,7 @@ def find_rating(player_id, cur_date):
     req = res.predictions.select("prediction").rdd.flatMap(lambda x : x).collect()
 
     final_res = req[0] / 10
+    print(final_res)
     return abs(final_res)
 
 # Code for linear regression model

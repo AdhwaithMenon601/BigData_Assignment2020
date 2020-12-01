@@ -6,13 +6,14 @@ from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import datediff,col
 from model import *
-
+from chances_of_winning import *
+import sys
 
 # Setting the paths of the CSV files
-play_path = "hdfs://localhost:9000/players.csv"
-team_path = "hdfs://localhost:9000/teams.csv"
-hdfspath_for_player_profile = "hdfs://localhost:9000/player_prof.json"
-hdfspath_for_match_info = "hdfs://localhost:9000/match_details.json"
+play_path = "hdfs://localhost:9000/ip/players.csv"
+team_path = "hdfs://localhost:9000/ip/teams.csv"
+#hdfspath_for_player_profile = "hdfs://localhost:9000/player_prof.json"
+#hdfspath_for_match_info = "hdfs://localhost:9000/match_details.json"
 def isvalid(roles):
     d = {'MD':0,'GK':0,'DF':0,'FW':0}
     for i in roles:
@@ -233,7 +234,8 @@ if __name__ == "__main__":
     sp_context = SparkContext('local[2]', "UI")
     sp_sess = SparkSession.builder.appName('user_input').getOrCreate()
     sp_context.addFile("model.py")
-    with open('inp_match.json', 'r') as file:
+    input_file = sys.argv[1]
+    with open(input_file, 'r') as file:
         content = file.read()
         input_data = eval(content)
         if input_data["req_type"] == 1:

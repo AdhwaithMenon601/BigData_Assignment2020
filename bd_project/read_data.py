@@ -18,7 +18,7 @@ player_ratings = {}
 profile_schema = None
 player_profile = None
 regr_player = None
-match_details = None
+match_details = []
 
 # Globals for records
 teams = None
@@ -270,6 +270,101 @@ def linreg_predict(player_profile, player_ratings, cur_date, teams_dict, regr_pl
 #         (93, 135103)
 #         (93, 227756)
 #     '''
+# Code for finding match data
+def fill_match_info(match_details, match_df, teams_dict):
+    players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
+    teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
+    req_date = match_df["dateutc"]
+    winner = match_df["winner"]
+    gameweek = match_df["gameweek"]
+    duration = match_df["duration"]
+    venue = match_df["venue"]
+
+    team_id = list(match_df['teamsData'].keys())
+    one_df = teams.filter(teams['Id'] == team_id[0])
+    two_df = teams.filter(teams['Id'] == team_id[1])
+
+    t1 = one_df.select("name").collect()[0].name
+    t2 = two_df.select("name").collect()[0].name
+
+    teams_compete = t1 + '-' + t2
+    
+    bench_1 = match_df['teamsData'][team_id[0]]['formation']['bench']
+    bench_2 = match_df['teamsData'][team_id[1]]['formation']['bench']
+    lineup_1 = match_df['teamsData'][team_id[0]]['formation']['lineup']
+    lineup_2 = match_df['teamsData'][team_id[1]]['formation']['lineup']
+
+    own_goals = []
+    goals = []
+    red_cards = []
+    yellow_cards = []
+    # For lineup of team 1
+    for i in lineup_1:
+        player_id = i['playerId']
+        name_df = players.filter(players['Id'] == player_id)
+        player_name = name_df.select("name").collect()[0].name
+        if (('ownGoals' in i) and i['ownGoals'] > 0):
+            own_goals.append({"name":player_name, "team":t1, "number_of_goals":i['ownGoals']})
+        if (('goals' in i) and i['goals'] > 0):
+            goals.append({"name":player_name, "team":t1, "number_of_goals":i['goals']})
+        if (('yellowCards'in i) and i['yellowCards'] > 0):
+            yellow_cards.append({"name":player_name, "team":t1})
+        if (('redCards'in i) and i['redCards'] > 0):
+            red_cards.append({"name":player_name, "team":t1})
+    
+    # For bench of team 1
+    for i in bench_1:
+        player_id = i['playerId']
+        name_df = players.filter(players['Id'] == player_id)
+        player_name = name_df.select("name").collect()[0].name
+        if (('ownGoals' in i) and i['ownGoals'] > 0):
+            own_goals.append({"name":player_name, "team":t1, "number_of_goals":i['ownGoals']})
+        if (('goals' in i) and i['goals'] > 0):
+            goals.append({"name":player_name, "team":t1, "number_of_goals":i['goals']})
+        if (('yellowCards'in i) and i['yellowCards'] > 0):
+            yellow_cards.append({"name":player_name, "team":t1})
+        if (('redCards'in i) and i['redCards'] > 0):
+            red_cards.append({"name":player_name, "team":t1})
+    
+    # Formation for lineup 2
+    for i in lineup_2:
+        player_id = i['playerId']
+        name_df = players.filter(players['Id'] == player_id)
+        player_name = name_df.select("name").collect()[0].name
+        if (('ownGoals' in i) and i['ownGoals'] > 0):
+            own_goals.append({"name":player_name, "team":t2, "number_of_goals":i['ownGoals']})
+        if (('goals' in i) and i['goals'] > 0):
+            goals.append({"name":player_name, "team":t2, "number_of_goals":i['goals']})
+        if (('yellowCards'in i) and i['yellowCards'] > 0):
+            yellow_cards.append({"name":player_name, "team":t2})
+        if (('redCards'in i) and i['redCards'] > 0):
+            red_cards.append({"name":player_name, "team":t2})
+    
+    # Formation for bench 2
+    for i in bench_2:
+        player_id = i['playerId']
+        name_df = players.filter(players['Id'] == player_id)
+        player_name = name_df.select("name").collect()[0].name
+        if (('ownGoals' in i) and i['ownGoals'] > 0):
+            own_goals.append({"name":player_name, "team":t2, "number_of_goals":i['ownGoals']})
+        if (('goals' in i) and i['goals'] > 0):
+            goals.append({"name":player_name, "team":t2, "number_of_goals":i['goals']})
+        if (('yellowCards'in i) and i['yellowCards'] > 0):
+            yellow_cards.append({"name":player_name, "team":t2})
+        if (('redCards'in i) and i['redCards'] > 0):
+            red_cards.append({"name":player_name, "team":t2})
+
+    new_match_data = {"date":req_date, "duration":duration, "winner":winner,\
+         "venue":venue, "gameweek":gameweek, "teams_playing":teams_compete,\
+              "goals":goals, "own_goals":own_goals,"yellow_cards":yellow_cards,\
+                   "red_cards":red_cards}
+
+    
+    match_details.append(new_match_data)
+    print(match_details)
+
+    return match_details
+
 def match_data():
 
     
@@ -307,6 +402,7 @@ def match_data():
     # Separating the events and match data
     match_df = event_rows[0]
     events_list = event_rows[1 : -1]
+
     
     for i in range(len(events_list)):
         sub_event = events_list[i]['subEventId']
@@ -373,6 +469,11 @@ def match_data():
     team1 = teams_dict[c[0]]
     team2 = teams_dict[c[1]]
 
+    if ('hasFormation' in match_df['teamsData']):
+        if (match_df['teamsData']['hasFormation'] == 1):
+            match_details = fill_match_info(match_details, match_df, teams_dict)
+    print(match_details)
+
     a,b = predict(player_chemistry, player_profile, player_ratings, team1, team2)
     print(a,b)
     
@@ -438,6 +539,12 @@ if __name__ == '__main__':
     from model import *
     from chances_of_winning import *
 
+    """global player_chemistry
+    global player_ratings
+    global regr_player
+    global player_profile
+    global match_details
+"""
     # Initializing the player chem and ratings
     player_chemistry = init_chemistry(players)
     player_ratings = init_ratings(players)
@@ -455,6 +562,15 @@ if __name__ == '__main__':
     () Cluster 
     (*) Model(Regression)
     """
+
+    """"player_chem_json = json.dumps(player_chemistry, indent=4)
+    player_rate_json = json.dumps(player_ratings, indent=4)
+    player_prof_json = json.dumps(player_profile, indent=4)"""
+
+    # Writing the JSON strings to files
+    """write_to_file('player_chem.json', player_chem_json)
+    write_to_file('player_rate.json', player_rate_json)
+    write_to_file('player_profile.json', player_prof_json)"""
 
     # Connecting to the specified host and port number
     data = ssp_context.socketTextStream('localhost', 6100)

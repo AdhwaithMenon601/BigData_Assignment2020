@@ -15,7 +15,7 @@ def prepare_dataframe(player_profile):
     tempd = {}
     print(player_profile)
     r_schema = StructType([StructField('player_id', IntegerType(), True), StructField('fouls', IntegerType(), True), StructField('name', StringType(), True), StructField('goals', IntegerType(
-    ), True), StructField('owngoals', IntegerType(), True), StructField('pass_acc', FloatType(), True), StructField('shots', IntegerType(), True), StructField('matches', IntegerType(), True)])
+    ), True), StructField('owngoals', IntegerType(), True), StructField('pass_acc', FloatType(), True), StructField('shots', FloatType(), True), StructField('matches', IntegerType(), True)])
     for i in player_profile:
         tempd = {}
         tempd["player_id"] = i

@@ -52,7 +52,7 @@ def init_profile():
         StructField('Goals', IntegerType(), True),
         StructField('Own Goals', IntegerType(), True),
         StructField('PassAccuracy', FloatType(), True),
-        StructField('ShotsOnTarget', IntegerType(), True),
+        StructField('ShotsOnTarget', FloatType(), True),
         StructField('Matches', IntegerType(), True)
     ])
 
@@ -101,10 +101,10 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             if (player_id not in shots_eff):
                 shots_eff.update({player_id:0})
             
-            '''
+            
             if (player_id not in goals_per_player):
-                fouls_per_player.update({player_id:0})
-            '''
+                goals_per_player.update({player_id:0})
+            
 
             name_df = players.filter(players['Id'] == player_id)
             player_name = name_df.select("name").collect()[0].name
@@ -113,10 +113,10 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             if (player_id not in player_profile):
                 matches = 1
             else:
-                matches = player_profile[player_id][6] + 1
+                matches = player_profile[player_id][6] + 4
 
 
-            new_list = [int(fouls_per_player[player_id]), player_name, int(goals_per_player), int(own_per_player[player_id]), pass_ac[player_id], int(shots_eff[player_id]), matches]
+            new_list = [int(fouls_per_player[player_id]), player_name, int(goals_per_player[player_id]), int(own_per_player[player_id]), pass_ac[player_id], shots_eff[player_id], matches]
             player_profile.update({player_id : new_list})
 
     return player_profile
@@ -235,6 +235,7 @@ def match_data():
     global match_count
     global players
     global teams
+    global regr_player
 
     # If only match data is present
     if (len(event_rows) == 1):
@@ -298,10 +299,20 @@ def match_data():
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
 
     # Player profile, clustering and regression
+    init_run = True
+    if (regr_player is not None):
+        init_run = False
     player_profile = get_profile(player_profile, fouls_per_player, own_per_player,goals_per_player, pass_ac, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
-    make_model(regr_player)
+    make_model(regr_player, init_run)
 
+    c = list(teams_dict.keys())
+
+    team1 = teams_dict[c[0]]
+    team2 = teams_dict[c[1]]
+
+    a,b = predict(player_chemistry, player_profile, player_ratings, team1, team2)
+    print(a,b)
     
     # for it in player_chemistry:
     #     print("{0:.5f}".format(player_chemistry[it]))
@@ -352,6 +363,7 @@ if __name__ == '__main__':
     sp_context.addFile("calc_stats_2.py")
     sp_context.addFile("init_stats.py")
     sp_context.addFile("model.py")
+    sp_context.addFile("chances_of_winning.py")
 
     # Reading the CSV files using Spark session
     players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
@@ -362,6 +374,7 @@ if __name__ == '__main__':
     from calc_stats_2 import *
     from init_stats import *
     from model import *
+    from chances_of_winning import *
 
     # Initializing the player chem and ratings
     player_chemistry = init_chemistry(players)

@@ -239,6 +239,21 @@ def match_data():
 
     # If only match data is present
     if (len(event_rows) == 1):
+        
+        # Creating random data for the model
+        cols = ['diff', 'rating']
+        rand_data = []
+
+        # Generating random data
+        for i in range(10):
+            tuple_dat = (random.randint(1000, 10000), random.randint(1000, 10000))
+            rand_data.append(tuple_dat)
+
+        # Creating the dataframe
+        rand_df = sp_sess.createDataFrame(data=rand_data, schema=cols)
+
+        # Initializing the model
+        make_model(rand_df, True)
         return
 
     # Separating the events and match data
@@ -299,9 +314,9 @@ def match_data():
     player_chemistry = calc_chemistry(player_chemistry, player_ratings, prev_player_rating, teams_dict)
 
     # Player profile, clustering and regression
-    init_run = True
-    if (regr_player is not None):
-        init_run = False
+    init_run = False
+    #if (regr_player is not None):
+        #init_run = False
     player_profile = get_profile(player_profile, fouls_per_player, own_per_player,goals_per_player, pass_ac, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
     make_model(regr_player, init_run)

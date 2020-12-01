@@ -18,6 +18,7 @@ player_ratings = {}
 profile_schema = None
 player_profile = None
 regr_player = None
+match_details = None
 
 # Globals for records
 teams = None
@@ -281,6 +282,7 @@ def match_data():
     global players
     global teams
     global regr_player
+    global match_details
 
     # If only match data is present
     if (len(event_rows) == 1):
@@ -444,6 +446,15 @@ if __name__ == '__main__':
     # Adds player profile
     player_profile = init_profile()
     # player_profile.show()
+
+    """
+    Need to convert following into dataframe and then into JSON
+    () player_chemistry
+    () player_profile
+    () player_ratings
+    () Cluster 
+    (*) Model(Regression)
+    """
 
     # Connecting to the specified host and port number
     data = ssp_context.socketTextStream('localhost', 6100)

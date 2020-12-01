@@ -551,7 +551,7 @@ def write_to_file(file_name, content):
         content {str} -- JSON string
     """
 
-    with open(file_name, 'r') as file:
+    with open(file_name, 'w') as file:
         file.write(content)
 
 # Saving all Data to storage

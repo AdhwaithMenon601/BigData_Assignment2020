@@ -229,12 +229,13 @@ def fouls_loss(event_df):
         player_id = i.playerId
 
         # If key doesnt exist, initialize
-        if (not(player_id in fouls_per_player)):
-            fouls_per_player[player_id] = 1
+        if (player_id not in fouls_per_player):
+            fouls_per_player.update({player_id:1})
 
         # If key exists, update
         else:
-            fouls_per_player[player_id] += 1
+            tmp = fouls_per_player[player_id] + 1
+            fouls_per_player.update({player_id:tmp})
 
     return fouls_per_player
 
@@ -258,13 +259,14 @@ def own_goal(event_df):
         own_count = 0
 
         # If key doesnt exist, initialize
-        if (not(player_id in own_per_player)):
-            own_per_player[player_id] = 0
+        if (player_id not in own_per_player):
+            own_per_player.update({player_id:0})
 
         # Checking for 102 : Own goal
         for j in i.tags:
             if (j['id'] == 102):
-                own_per_player[player_id] += 1
+                tmp = own_per_player[player_id] + 1
+                own_per_player.update({player_id:tmp})
 
     return own_per_player
 

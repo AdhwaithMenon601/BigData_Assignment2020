@@ -65,24 +65,32 @@ def predict_helper(user):
     for i in role_team2:
         team2_roles.append(i.role)
     
+    invalid_flag = None
     for i in teams_dict[t1]:
         cur = find_rating(i, cur_date)
         if (cur < 0.2):
             print("{} has retired".format(i))
             print("Match is not valid")
+            invalid_flag = True
     
     for i in teams_dict[t2]:
         cur = find_rating(i, cur_date)
         if (cur < 0.2):
             print("{} has retired".format(i))
             print("Match is not valid")
+            invalid_flag = True
+    
+    if (invalid_flag == True):
+        # Create o/p json and save in file
+        return
     
     
     if isvalid(team1_roles) and isvalid(team2_roles):
         print("We will be calling the functions here")
+        # Create o/p json and save in file
     else:
         print("Match is not valid")
-    #req_predict = process_stream(None)
+        return
     
 def player_profile_helper(user):
     

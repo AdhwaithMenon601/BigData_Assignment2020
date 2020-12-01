@@ -605,11 +605,7 @@ if __name__ == '__main__':
     teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
 
     # Importing the files
-    from calc_stats_1 import *
-    from calc_stats_2 import *
-    from init_stats import *
-    from model import *
-    from chances_of_winning import *
+    from metrics import *
 
     """global player_chemistry
     global player_ratings

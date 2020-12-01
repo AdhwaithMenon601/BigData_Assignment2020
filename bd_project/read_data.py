@@ -534,6 +534,15 @@ def save_data():
     """
     save_data : Saves the data to HDFS
     """
+    
+    # Global variables
+    global player_chemistry
+    global player_ratings
+    global player_profile
+    global match_details
+
+    # Player chem keys as strings
+    player_chemistry = {str(key) : value for key, value in player_chemistry.items()}
 
     # Creating JSON strings using JSON
     player_chem_json = json.dumps(player_chemistry, indent=4)

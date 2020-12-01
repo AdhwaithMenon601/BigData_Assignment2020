@@ -98,7 +98,7 @@ def player_profile_helper(user):
     height = player_info.select('height').collect()[0].height
     weight = player_info.select('weight').collect()[0].weight
     player_id = player_info.select('Id').collect()[0].Id
-    with open('inp_player.json', 'r') as file:
+    with open('hdfs_player_profile.json', 'r') as file:
         content = file.read()
         players_dict = eval(content)
         for i in players_dict:
@@ -146,7 +146,7 @@ def match_data_helper(user):
     team_id_2 = team_2.select('Id').collect()[0].Id
     #print(match_date,team_id_1,team_id_2)
     # process_stream(team1, team2, date)
-    with open('inp_match.json', 'r') as file:
+    with open('hdfs_match_info.json', 'r') as file:
         content = file.read()
         match_info = eval(content)
         for i in match_info:

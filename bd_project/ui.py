@@ -142,7 +142,7 @@ def player_profile_helper(user):
     height = player_info.select('height').collect()[0].height
     weight = player_info.select('weight').collect()[0].weight
     player_id = player_info.select('Id').collect()[0].Id
-    with open(hdfspath_for_player_profile, 'r') as file:
+    with open("player_profile.json", 'r') as file:
         content = file.read()
         players_dict = eval(content)
         for i in players_dict:

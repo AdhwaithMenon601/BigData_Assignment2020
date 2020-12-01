@@ -10,7 +10,8 @@ from pyspark.sql.functions import datediff,col
 # Setting the paths of the CSV files
 play_path = "hdfs://localhost:9000/players.csv"
 team_path = "hdfs://localhost:9000/teams.csv"
-
+hdfspath_for_player_profile = ""
+hdfspath_for_match_info = ""
 def isvalid(roles):
     d = {'MD':0,'GK':0,'DF':0,'FW':0}
     for i in roles:
@@ -98,7 +99,7 @@ def player_profile_helper(user):
     height = player_info.select('height').collect()[0].height
     weight = player_info.select('weight').collect()[0].weight
     player_id = player_info.select('Id').collect()[0].Id
-    with open('hdfs_player_profile.json', 'r') as file:
+    with open(hdfspath_for_player_profile, 'r') as file:
         content = file.read()
         players_dict = eval(content)
         for i in players_dict:
@@ -146,7 +147,7 @@ def match_data_helper(user):
     team_id_2 = team_2.select('Id').collect()[0].Id
     #print(match_date,team_id_1,team_id_2)
     # process_stream(team1, team2, date)
-    with open('hdfs_match_info.json', 'r') as file:
+    with open(hdfspath_for_match_info, 'r') as file:
         content = file.read()
         match_info = eval(content)
         for i in match_info:

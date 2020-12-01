@@ -5,8 +5,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import datediff,col
-from model import *
-from chances_of_winning import *
+from metrics import *
 import sys
 
 # Setting the paths of the CSV files

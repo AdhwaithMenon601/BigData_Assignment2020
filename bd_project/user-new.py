@@ -5,8 +5,9 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import datediff,col
+from model import *
 
-fin = open("inp_match.json")
+fin = open("inp_predict.json")
 input_data = json.load(fin)
 
 # Setting the paths of the CSV files
@@ -25,7 +26,6 @@ def isvalid(roles):
         return False
 
 def predict_helper(user):
-    
     players_name_team_1 = []
     players_name_team_2 = []
     #for i in user['team1']
@@ -64,6 +64,19 @@ def predict_helper(user):
         team1_roles.append(i.role)
     for i in role_team2:
         team2_roles.append(i.role)
+    
+    for i in teams_dict[t1]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            print("{} has retired".format(i))
+            print("Match is not valid")
+    
+    for i in teams_dict[t2]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            print("{} has retired".format(i))
+            print("Match is not valid")
+    
     
     if isvalid(team1_roles) and isvalid(team2_roles):
         print("We will be calling the functions here")

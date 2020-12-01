@@ -5,6 +5,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import datediff,col
+from model import *
 
 
 # Setting the paths of the CSV files
@@ -20,9 +21,8 @@ def isvalid(roles):
         return True
     else:
         return False
-sp_sess = SparkSession.builder.appName('user_input').getOrCreate()
+# Prediction helpers
 def predict_helper(user):
-    
     players_name_team_1 = []
     players_name_team_2 = []
     #for i in user['team1']
@@ -64,19 +64,19 @@ def predict_helper(user):
         team2_roles.append(i.role)
     
     flag = 0
-    # for i in teams_dict[t1]:
-    #     cur = find_rating(i, cur_date)
-    #     if (cur < 0.2):
-    #         print("{} has retired".format(i))
-    #         #print("Match is not valid")
-    #         flag = 1
+    for i in teams_dict[t1]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            print("{} has retired".format(i))
+            #print("Match is not valid")
+            flag = 1
 
-    # for i in teams_dict[t2]:
-    #     cur = find_rating(i, cur_date)
-    #     if (cur < 0.2):
-    #         print("{} has retired".format(i))
-    #         # print("Match is not valid")
-    #         flag = 1
+    for i in teams_dict[t2]:
+        cur = find_rating(i, cur_date)
+        if (cur < 0.2):
+            print("{} has retired".format(i))
+            # print("Match is not valid")
+            flag = 1
 
     if isvalid(team1_roles) and isvalid(team2_roles) and flag == 0:
         print("We will be calling the function")
@@ -135,19 +135,23 @@ def match_data_helper(user):
     temp = match_details.split(",")
     temp1 = temp[0]
     team1,team2 = temp1.split("-")
+    team1 = team1.strip()
+    team2 = team2.strip()
     # team1_goal,team2_goal = temp2.split("-")
     teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
-    teams.show()
+    # teams.show()
     # print(team1)
     team_1 = teams.filter(teams["name"].isin(team1)== True)
-    team_1.show()
+    # team_1.show()
     team_id_1 = team_1.select('Id').collect()[0].Id
     #print(team1,team2,team1_goal,team2_goal)
     team_2 = teams.filter(teams["name"].isin(team2)== True)
     team_id_2 = team_2.select('Id').collect()[0].Id
     #print(match_date,team_id_1,team_id_2)
     # process_stream(team1, team2, date)
-    with open(hdfspath_for_match_info, 'r') as file:
+    team_1 = team_1.select('name').collect()[0].name
+    team_2 = team_2.select('name').collect()[0].name
+    with open("match_details.json", 'r') as file:
         content = file.read()
         match_info = eval(content)
         for i in match_info:
@@ -155,31 +159,39 @@ def match_data_helper(user):
             teams = i['teams_playing']
             temp = date_time.split(" ")
             date = temp[0]
+            new_teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
+            new_df = new_teams.filter(new_teams["Id"] == i['winner'])
+            winner_name = new_df.select("name").collect()[0].name
             team = teams.split("-")
             team_a,team_b = team[0],team[1]
-            if (date == match_date) and ((team_1==team_a and team_2==team_b) or (team_1==team_b and team_2 == team_a)):
-                # dictionary ={
-                #     "date":match_date,
-                #     "duration":i['duration'],
-                #     "winner":i['winner'],
-                #     "venue":i['venue'],
-                #     "gameweek":i['gameweek'],
-                #     "goals":i['goals'],
-                #     "own_goals":i['own_goals'],
-                #     "yellow_cards":i['yellow_cards'],
-                #     "red_cards":i['red_cards']
-                # }
-                dictionary = i
-                json_object = json.dumps(dictionary) 
+            team_a = team_a.strip()
+            team_b = team_b.strip()
+            if ((date == match_date) and ((team_1==team_a and team_2==team_b) or (team_1==team_b and team_2 == team_a))):
+                dictionary = {
+                    "date":match_date,
+                    "duration":i['duration'],
+                    "winner":winner_name,
+                    "venue":i['venue'],
+                    "gameweek":i['gameweek'],
+                    "goals":i['goals'],
+                    "own_goals":i['own_goals'],
+                    "yellow_cards":i['yellow_cards'],
+                    "red_cards":i['red_cards']
+                }
+                json_object = json.dumps(dictionary, indent=4) 
                 # Writing to sample.json 
-                with open("output_req_2.json", "w") as outfile: 
+                with open("output_req_2.json", "w") as outfile:
+                    print("Writing....to JSON") 
                     outfile.write(json_object) 
                 break    
 
 
 
 if __name__ == "__main__":
-    with open('inp_predict.json', 'r') as file:
+    sp_context = SparkContext('local[2]', "UI")
+    sp_sess = SparkSession.builder.appName('user_input').getOrCreate()
+    sp_context.addFile("model.py")
+    with open('inp_match.json', 'r') as file:
         content = file.read()
         input_data = eval(content)
         if input_data["req_type"] == 1:

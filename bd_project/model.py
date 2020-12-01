@@ -16,7 +16,7 @@ def find_rating(player_id, cur_date):
     play_path = "hdfs://localhost:9000/players.csv"
     players = sp_sess.read.csv(play_path, header=True, inferSchema=True)
     assembler = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
-    name_df = players.filter(players['Id'] == player_id)
+    name_df = players.filter(players['Id'] == int(player_id))
     
     player_date = name_df.select("birthDate").collect()[0].birthDate
 

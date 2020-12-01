@@ -18,7 +18,7 @@ def prepare_dataframe(player_profile):
     ), True), StructField('owngoals', IntegerType(), True), StructField('pass_acc', FloatType(), True), StructField('shots', FloatType(), True), StructField('matches', IntegerType(), True)])
     for i in player_profile:
         tempd = {}
-        tempd["player_id"] = i
+        tempd["player_id"] = int(i)
         temp = player_profile[i]
         tempd["fouls"] = temp[0]
         tempd["name"] = temp[1]

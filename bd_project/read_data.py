@@ -1,6 +1,8 @@
 import sys
+import os
 import json
 import random
+import requests
 from pyspark.streaming import StreamingContext
 from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
@@ -529,7 +531,7 @@ def process_record(rdd):
     print('Current Match:', match_count)
 
     # Stopping the stream
-    if (match_count > 100):
+    if (match_count > 5):
         ssp_context.stop()
 
     # Collecting match and event data
@@ -551,7 +553,7 @@ def write_to_file(file_name, content):
         content {str} -- JSON string
     """
 
-    with open(file_name, 'r') as file:
+    with open(file_name, 'w') as file:
         file.write(content)
 
 # Saving all Data to storage
@@ -574,12 +576,19 @@ def save_data():
     player_rate_json = json.dumps(player_ratings, indent=4)
     player_prof_json = json.dumps(player_profile, indent=4)
     match_details_json = json.dumps(match_details, indent=4)
+    
+    os.system('echo "%s" | hadoop fs -put - /player_chem.json' %(player_chem_json))
+    os.system('echo "%s" | hadoop fs -put - /player_rate.json' %(player_rate_json))
+    os.system('echo "%s" | hadoop fs -put - /player_prof.json' %(player_prof_json))
+    os.system('echo "%s" | hadoop fs -put - /match_details.json' %(match_details_json))
 
     # Writing the JSON strings to files
-    write_to_file('player_chem.json', player_chem_json)
-    write_to_file('player_rate.json', player_rate_json)
-    write_to_file('player_profile.json', player_prof_json)
-    write_to_file('match_details.json', match_details_json)
+    """
+    res = requests.put('hdfs://localhost:9000/player_chem.json', params=params, data= player_chem_json)
+    res = requests.put('hdfs://localhost:9000/player_rate.json', params=params, data= player_rate_json)
+    res = requests.put('hdfs://localhost:9000/player_prof.json', params=params, data= player_prof_json)
+    res = requests.put('hdfs://localhost:9000/match_details.json', params=params, data= match_details_json)
+    """
 
 if __name__ == '__main__':
 

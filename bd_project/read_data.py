@@ -582,11 +582,6 @@ def save_data():
     write_to_file("player_rate.json",player_rate_json)
     write_to_file("player_profile.json",player_prof_json)
     write_to_file("match_details.json",match_details_json)
-    
-    os.system('hdfs dfs -put -f player_chem.json /player_chem.json')
-    os.system('hdfs dfs -put -f player_rate.json /player_rate.json')
-    os.system('hdfs dfs -put -f player_profile.json /player_prof.json')
-    os.system('hdfs dfs -put -f match_details.json /match_details.json')
 
     # Writing the JSON strings to files
 

@@ -11,8 +11,8 @@ from model import *
 # Setting the paths of the CSV files
 play_path = "hdfs://localhost:9000/players.csv"
 team_path = "hdfs://localhost:9000/teams.csv"
-hdfspath_for_player_profile = ""
-hdfspath_for_match_info = ""
+hdfspath_for_player_profile = "hdfs://localhost:9000/player_prof.json"
+hdfspath_for_match_info = "hdfs://localhost:9000/match_details.json"
 def isvalid(roles):
     d = {'MD':0,'GK':0,'DF':0,'FW':0}
     for i in roles:

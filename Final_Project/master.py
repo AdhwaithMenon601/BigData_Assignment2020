@@ -553,6 +553,8 @@ if __name__ == '__main__':
     # Adds player profile
     player_profile = init_profile()
     # player_profile.show()
+    with open("match_details.json","a") as file:
+            file.write('[')
 
     """
     Need to convert following into dataframe and then into JSON

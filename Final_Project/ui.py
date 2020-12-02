@@ -5,8 +5,7 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import datediff,col
-from model import *
-from chances_of_winning import *
+from metrics import *
 import sys
 
 # Setting the paths of the CSV files
@@ -327,7 +326,7 @@ def match_data_helper(user):
 if __name__ == "__main__":
     sp_context = SparkContext('local[2]', "UI")
     sp_sess = SparkSession.builder.appName('user_input').getOrCreate()
-    sp_context.addFile("model.py")
+    sp_context.addFile("metrics.py")
     input_file = sys.argv[1]
     with open(input_file, 'r') as file:
         content = file.read()

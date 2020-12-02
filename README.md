@@ -13,7 +13,7 @@ The aim of this project was to perform FPL analytics using Streaming spark to re
 
 The code for executing the project is stored in the folder ```Final_Project```
 
-### Files in the Project Foler
+### Files in the Project Folder
 The given folder contains three python files-
 - master.py
 - metrics.py

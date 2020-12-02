@@ -318,6 +318,7 @@ def match_data():
     global teams
     global regr_player
     global match_details
+    global check_count
 
     # If only match data is present
     if (len(event_rows) == 1):
@@ -457,7 +458,7 @@ def process_record(rdd):
     print('Current Match:', match_count)
 
     # Stopping the stream
-    if (match_count > 381):
+    if (match_count > 5):
         with open("match_details.json","a") as file:
             file.write(']')
         ssp_context.stop()

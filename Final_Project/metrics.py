@@ -20,6 +20,9 @@ from pyspark.ml.regression import LinearRegression, LinearRegressionModel
 from pyspark.ml.clustering import KMeans
 from pyspark.ml.evaluation import ClusteringEvaluator
 
+# Global model variables
+curr_model = None
+
 
 
 ############################################
@@ -627,6 +630,8 @@ def find_rating(player_id, cur_date):
 
 # Code for linear regression model
 def make_model(player_regr, initial_run):
+
+    global curr_model
     assembler_1 = VectorAssembler(inputCols = ['diff'],outputCol = 'features')
     lr = None
     train_df = None
@@ -636,13 +641,11 @@ def make_model(player_regr, initial_run):
     if initial_run == False:
 
         # Setting Old Model's weights
-        old_model = LinearRegressionModel.load('reg_model')
-        player_regr = player_regr.withColumn('weights', lit(old_model.coefficients[0]))
+        player_regr = player_regr.withColumn('weights', lit(abs(curr_model.coefficients[0])))
         check_data = player_regr.select("diff", "rating", 'weights')
 
         check_data = check_data.withColumn('new_diff', check_data['diff'] / 1000)
         check_data = check_data.withColumn('new_rating', check_data['rating'] * 10)
-        check_data.show()
 
         assembler_2 = VectorAssembler(inputCols = ['new_diff'],outputCol = 'features')
 
@@ -669,14 +672,7 @@ def make_model(player_regr, initial_run):
         # LR Object
         lr = LinearRegression(featuresCol='features', labelCol='rating')
 
-    final_model = lr.fit(train_df)
-    res = final_model.evaluate(train_df)
-    res.predictions.show()
-    res = final_model.evaluate(test_df)
-    res.predictions.show()
-
-    # Writing the model to file
-    final_model.write().overwrite().save('reg_model')
+    curr_model = lr.fit(train_df)
 
 
 ########################################################

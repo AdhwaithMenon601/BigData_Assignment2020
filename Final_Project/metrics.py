@@ -768,7 +768,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
             lessthan2.append(i)
     tot2 = 0
     for i in player_coeff1:
-        tot2 += (player_coeff1[i]*find_rating(i, "2020-08-11"))
+        tot2 += (player_coeff1[i]*find_rating(i, cur_date))
     player_df = prepare_dataframe(player_profile)
     predictions, centers = clustering(player_df)
     #print("LESSTHAN1 ",lessthan1)
@@ -809,6 +809,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
     strength_b = tot2/11
     chance_a = (0.5+strength_a-((strength_a+strength_b)/2))*100
     chance_b = 100-chance_a
+
     return chance_a, chance_b
 
 

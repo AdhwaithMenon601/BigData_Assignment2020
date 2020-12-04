@@ -25,7 +25,7 @@ profile_schema = None
 player_profile = None
 regr_player = None
 match_details = []
-
+player_profile_stats={}
 # Globals for records
 teams = None
 players = None
@@ -98,7 +98,7 @@ def filter_players(teams_dict, players_list):
     return teams_dict
 
 # Function for player profile
-def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac, shots_eff, teams_dict):
+def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac,pass_stats, shots_eff, teams_dict):
     # Create a new row in the dataframe and check if player id exists
     # If the player id does not exist , simply append and add
     # Else we must remove that row and join with other dataframe
@@ -140,8 +140,13 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
                 n1 = int(fouls_per_player[player_id])
                 n2 = int(goals_per_player[player_id])
                 n3 = int(own_per_player[player_id])
-
-            new_list = [n1, player_name, n2, n3, pass_ac[player_id], shots_eff[player_id], matches]
+            if i not in player_profile_stats:
+                player_profile_stats[i]=pass_stats[i]
+            else:
+                for j in range(len(player_profile_stats[i])):
+                    player_profile_stats[i][j]=player_profile_stats[i][j]+pass_stats[i][j]
+            new_pass_acc = (player_profile_stats[i][1] + (player_profile_stats[i][0] * 2))/((player_profile_stats[i][1] + player_profile_stats[i][3]) + ((player_profile_stats[i][0] + player_profile_stats[i][2]) * 2))
+            new_list = [n1, player_name, n2, n3, new_pass_acc, shots_eff[player_id], matches]
 
             player_profile.update({player_id : new_list})
 

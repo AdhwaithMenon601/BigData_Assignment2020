@@ -185,6 +185,7 @@ def shots_effectiveness(event_df):
     """
     player_shots = {}
     player_goals={}
+    player_shots_effec={}
 
     # Event dicts
     on_target = {'id' : 1801}
@@ -222,9 +223,9 @@ def shots_effectiveness(event_df):
             eff = 0
         else:
             eff = (stats[0] + (stats[1] * 0.5)) / (stats[0] + stats[1] + stats[2])
-        player_shots.update({player: eff})
+        player_shots_effec.update({player: eff})
 
-    return player_shots,player_goals
+    return player_shots,player_goals,player_shots_effec
 
 
 def fouls_loss(event_df):

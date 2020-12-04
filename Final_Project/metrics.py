@@ -2,6 +2,7 @@ import sys
 import json
 import itertools
 import datetime
+import random
 
 # Base Pyspark SQL functions
 from pyspark.sql.functions import array, lit, datediff, col
@@ -626,6 +627,7 @@ def find_rating(player_id, cur_date):
     req = res.predictions.select("prediction").rdd.flatMap(lambda x : x).collect()
 
     final_res = req[0] / 10
+
     return abs(final_res)
 
 # Code for linear regression model
@@ -728,7 +730,7 @@ def clustering(player_profile):
     return predictions, centers
 
 
-def predict(player_chem, player_profile, player_ratings, team1, team2):
+def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date):
     #print(team1)
     #print(team2)
     player_coeff1 = {}
@@ -749,7 +751,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2):
             lessthan1.append(i)
     tot1 = 0
     for i in player_coeff1:
-        tot1 += (player_coeff1[i]*find_rating(i, "2020-08-11"))
+        tot1 += (player_coeff1[i]*find_rating(i, cur_date))
     player_coeff2 = {}
     lessthan2 = []
     for i in team2:

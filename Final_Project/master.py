@@ -132,8 +132,15 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             else:
                 matches = player_profile[player_id][6] + 1
 
+            n1 = int(fouls_per_player[player_id]) + player_profile[player_id][0]
+            n2 = int(goals_per_player[player_id]) + player_profile[player_id][2]
+            n3 = int(own_per_player[player_id]) + player_profile[player_id][3]
+            # n4 = int(fouls_per_player[player_id]) + player_profile[player_id][4]
+            # n5 = int(fouls_per_player[player_id]) + player_profile[player_id][5]
 
-            new_list = [int(fouls_per_player[player_id]), player_name, int(goals_per_player[player_id]), int(own_per_player[player_id]), pass_ac[player_id], shots_eff[player_id], matches]
+            new_list = [n1, player_name, n2,\
+                 n3,\
+                      pass_ac[player_id], shots_eff[player_id], matches]
             player_profile.update({player_id : new_list})
 
     return player_profile
@@ -346,7 +353,7 @@ def match_data():
     
     # Writing to the match JSON
     with open("match_details.json","a") as file:
-        if (check_count < 4):
+        if (check_count < 380):
             file.write(json.dumps(match_df, indent=4) + ',')
             check_count += 1
         else:
@@ -458,7 +465,7 @@ def process_record(rdd):
     print('Current Match:', match_count)
 
     # Stopping the stream
-    if (match_count > 5):
+    if (match_count > 381):
         with open("match_details.json","a") as file:
             file.write(']')
         # Saving the data to HDFS

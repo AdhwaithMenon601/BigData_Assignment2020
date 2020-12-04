@@ -461,7 +461,8 @@ def process_record(rdd):
     if (match_count > 5):
         with open("match_details.json","a") as file:
             file.write(']')
-        ssp_context.stop()
+        # Saving the data to HDFS
+        save_data()
         
 
     # Collecting match and event data
@@ -516,6 +517,7 @@ def save_data():
     write_to_file("player_chem.json", player_chem_json)
     write_to_file("player_rate.json", player_rate_json)
     write_to_file("player_profile.json", player_prof_json)
+    ssp_context.stop()
 
 if __name__ == '__main__':
 
@@ -579,6 +581,3 @@ if __name__ == '__main__':
     data.foreachRDD(process_record)
     ssp_context.start()
     ssp_context.awaitTermination()
-
-    # Saving the data to HDFS
-    save_data()

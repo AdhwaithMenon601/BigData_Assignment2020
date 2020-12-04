@@ -149,7 +149,6 @@ def predict_helper(user):
     temp = temp[1:]
     cur_date = user['date']
     for i in temp:
-        # print(user['team1'][i].encode('utf-8')
         players_name_team_1.append(user['team1'][i])
     temp = list(user['team2'])
     temp = temp[1:]
@@ -163,7 +162,7 @@ def predict_helper(user):
     # print(players_name_team_1)
     team_1 = players.filter(players["name"].isin(players_name_team_1) == True)
     team_1.show()
-    team_2 = players.filter(players["name"].isin(players_name_team_2))
+    team_2 = players.filter(players["name"].isin(players_name_team_2) == True)
     team1_id = team_1.select("Id").collect()
     team2_id = team_2.select("Id").collect()
     role_team1 = team_1.select('role').collect()
@@ -230,6 +229,7 @@ def predict_helper(user):
         with open("output_req_1.json", "w") as outfile:
             outfile.write(json_object)
     elif flag==1:
+        #flag = 1 means there are retired players
         dictionary = {
             "isInvalid": 'True',
             "team1_retired_players":team1_retired,
@@ -262,7 +262,7 @@ def player_profile_helper(user):
         content = file.read()
         players_dict = eval(content)
         for i in players_dict:
-            if str(i)==str(player_id):
+            if str(i)==str(player_id): #checking the id's
                 fouls = players_dict[i][0]
                 goals = players_dict[i][2]
                 own_goals = players_dict[i][3]

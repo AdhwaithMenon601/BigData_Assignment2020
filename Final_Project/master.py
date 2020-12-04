@@ -140,12 +140,22 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
                 n1 = int(fouls_per_player[player_id])
                 n2 = int(goals_per_player[player_id])
                 n3 = int(own_per_player[player_id])
-            if i not in player_profile_stats:
-                player_profile_stats[i]=pass_stats[i]
+            
+            if player_id not in player_profile_stats:
+                if player_id not in pass_stats:
+                    pass_stats[player_id] = [0, 0, 0, 0]
+                player_profile_stats[player_id] = pass_stats[player_id]
             else:
-                for j in range(len(player_profile_stats[i])):
-                    player_profile_stats[i][j]=player_profile_stats[i][j]+pass_stats[i][j]
-            new_pass_acc = (player_profile_stats[i][1] + (player_profile_stats[i][0] * 2))/((player_profile_stats[i][1] + player_profile_stats[i][3]) + ((player_profile_stats[i][0] + player_profile_stats[i][2]) * 2))
+                for j in range(len(player_profile_stats[player_id])):
+                    if player_id not in pass_stats:
+                        pass_stats[player_id] = [0, 0, 0, 0]
+                    player_profile_stats[player_id][j] = player_profile_stats[player_id][j] + pass_stats[player_id][j]
+            check_sum = (player_profile_stats[player_id][1] + player_profile_stats[player_id][3]) + ((player_profile_stats[player_id][0] + player_profile_stats[player_id][2]) * 2)
+            if (check_sum == 0):
+                new_pass_acc = 0
+            else:
+                new_pass_acc = (player_profile_stats[player_id][1] + (player_profile_stats[player_id][0] * 2)) / ((player_profile_stats[player_id][1] + player_profile_stats[player_id][3]) + ((player_profile_stats[player_id][0] + player_profile_stats[player_id][2]) * 2))
+            
             new_list = [n1, player_name, n2, n3, new_pass_acc, shots_eff[player_id], matches]
 
             player_profile.update({player_id : new_list})
@@ -404,7 +414,7 @@ def match_data():
     teams_dict = filter_players(ret_players(match_df), players_id)
 
     # Calculating metrics 1
-    pass_ac = pass_accuracy(event_df)
+    pass_stats,pass_ac = pass_accuracy(event_df)
     duel_eff = duel_effectiveness(event_df)
     free_eff = freekick_effectiveness(event_df)
     shots_eff, goals_per_player = shots_effectiveness(event_df)
@@ -428,7 +438,7 @@ def match_data():
         player_chemistry, player_ratings, prev_player_rating, teams_dict)
 
     # Player profile, clustering and regression
-    player_profile = get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac, shots_eff, teams_dict)
+    player_profile = get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac, pass_stats, shots_eff, teams_dict)
     regr_player = linreg_predict(player_profile, player_ratings, cur_date , teams_dict, regr_player)
 
     # Testing with Random data for test

@@ -172,10 +172,8 @@ def predict_helper(user):
     team2_roles = []
     for i in team1_id:
         teams_dict[t1].append(i.Id)
-        print(i.Id)
     for i in team2_id:
         teams_dict[t2].append(i.Id)
-        print(i.Id)
     for i in role_team1:
         team1_roles.append(i.role)
     for i in role_team2:
@@ -267,7 +265,7 @@ def player_profile_helper(user):
                 goals = players_dict[i][2]
                 own_goals = players_dict[i][3]
                 pass_accuracy = players_dict[i][4]
-                shots_acc = players_dict[i][4]
+                shots_acc = players_dict[i][5]
                 dictionary ={ 
                 "name" : name, 
                 "birthArea":birthArea,
@@ -320,12 +318,13 @@ def match_data_helper(user):
                 dictionary = fill_match_info(i)
                 json_object = json.dumps(dictionary, indent=4) 
                 # Writing to sample.json 
-                with open("output_req_2.json", "w") as outfile:
-                    print("Writing....to JSON") 
+                with open("output_req_3.json", "w") as outfile:
                     outfile.write(json_object) 
                 return
                 break
-    print("DOES NOT EXIST")    
+    with open("output_req_3.json", "w") as outfile:
+        dicte = {"match_found":False}
+        outfile.write(json.dumps(dicte, indent=4))    
 
 
 

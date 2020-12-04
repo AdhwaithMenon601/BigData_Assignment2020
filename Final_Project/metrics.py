@@ -23,6 +23,7 @@ from pyspark.ml.evaluation import ClusteringEvaluator
 
 # Global model variables
 curr_model = None
+norm_factor = 0
 
 
 
@@ -752,6 +753,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
         else:
             lessthan1.append(i)
     tot1 = 0
+    norm_factor = random.randint(5,11)
     for i in player_coeff1:
         tot1 += (player_coeff1[i]*find_rating(i, cur_date))
     player_coeff2 = {}
@@ -777,8 +779,8 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
         tot2 += (player_coeff2[i]*find_rating(i, cur_date))
     player_df = prepare_dataframe(player_profile)
     predictions, centers = clustering(player_df)
-    #print("LESSTHAN1 ",lessthan1)
-    
+    tot1 *= norm_factor
+    tot2 *= norm_factor
     for i in lessthan1:
         tempdf = predictions.filter(predictions["player_id"] == i)
         cluster_id = predictions.filter(
@@ -815,7 +817,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
         tot2 += tot
     strength_a = float(tot1/11)
     strength_b = float(tot2/11)
-    chance_a = (0.7+strength_a-((strength_a+strength_b)/2))*100
+    chance_a = (0.5+strength_a-((strength_a+strength_b)/2))*100
     chance_b = 100-chance_a
 
     return chance_a, chance_b

@@ -132,15 +132,17 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             else:
                 matches = player_profile[player_id][6] + 1
 
-            n1 = int(fouls_per_player[player_id]) + player_profile[player_id][0]
-            n2 = int(goals_per_player[player_id]) + player_profile[player_id][2]
-            n3 = int(own_per_player[player_id]) + player_profile[player_id][3]
-            # n4 = int(fouls_per_player[player_id]) + player_profile[player_id][4]
-            # n5 = int(fouls_per_player[player_id]) + player_profile[player_id][5]
+            if (player_id in player_profile):
+                n1 = int(fouls_per_player[player_id]) + player_profile[player_id][0]
+                n2 = int(goals_per_player[player_id]) + player_profile[player_id][2]
+                n3 = int(own_per_player[player_id]) + player_profile[player_id][3]
+            else:
+                n1 = int(fouls_per_player[player_id])
+                n2 = int(goals_per_player[player_id])
+                n3 = int(own_per_player[player_id])
 
-            new_list = [n1, player_name, n2,\
-                 n3,\
-                      pass_ac[player_id], shots_eff[player_id], matches]
+            new_list = [n1, player_name, n2, n3, pass_ac[player_id], shots_eff[player_id], matches]
+
             player_profile.update({player_id : new_list})
 
     return player_profile

@@ -26,6 +26,7 @@ player_profile = None
 regr_player = None
 match_details = []
 player_profile_stats={}
+player_profile_stats_shots={}
 # Globals for records
 teams = None
 players = None
@@ -98,7 +99,7 @@ def filter_players(teams_dict, players_list):
     return teams_dict
 
 # Function for player profile
-def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac,pass_stats, shots_eff, teams_dict):
+def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_player, pass_ac,pass_stats, shots_eff,shots_stats, teams_dict):
     # Create a new row in the dataframe and check if player id exists
     # If the player id does not exist , simply append and add
     # Else we must remove that row and join with other dataframe
@@ -155,8 +156,21 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
                 new_pass_acc = 0
             else:
                 new_pass_acc = (player_profile_stats[player_id][1] + (player_profile_stats[player_id][0] * 2)) / ((player_profile_stats[player_id][1] + player_profile_stats[player_id][3]) + ((player_profile_stats[player_id][0] + player_profile_stats[player_id][2]) * 2))
-            
-            new_list = [n1, player_name, n2, n3, new_pass_acc, shots_eff[player_id], matches]
+            if player_id not in player_profile_stats_shots:
+                if player_id not in shots_stats:
+                    shots_stats[player_id] = [0, 0, 0]
+                player_profile_stats_shots[player_id] = shots_stats[player_id]
+            else:
+                for j in range(len(player_profile_stats_shots[player_id])):
+                    if player_id not in shots_stats:
+                        shots_stats[player_id] = [0, 0, 0, 0]
+                    player_profile_stats_shots[player_id][j] = player_profile_stats_shots[player_id][j] + shots_stats[player_id][j]
+            check_sum = (player_profile_stats_shots[player_id][1] + player_profile_stats_shots[player_id][3]) + ((player_profile_stats_shots[player_id][0] + player_profile_stats_shots[player_id][2]) * 2)
+            if (check_sum == 0):
+                new_shot_acc = 0
+            else:
+                new_shot_acc = (player_profile_stats_shots[player_id][1] + (player_profile_stats_shots[player_id][0] * 2)) / ((player_profile_stats_shots[player_id][1] + player_profile_stats_shots[player_id][3]) + ((player_profile_stats_shots[player_id][0] + player_profile_stats_shots[player_id][2]) * 2))          
+            new_list = [n1, player_name, n2, n3, new_pass_acc, new_shot_acc, matches]
 
             player_profile.update({player_id : new_list})
 

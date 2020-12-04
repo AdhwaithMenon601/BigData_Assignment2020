@@ -748,7 +748,7 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
                     tup1 = '(' + str(j) + ',' + ' ' + str(i) + ')'
                     total1 += player_chem[tup1]
             total1 = total1/len(team1)-1
-            player_coeff1[i] = total1
+            player_coeff1.update({i:total1})
         else:
             lessthan1.append(i)
     tot1 = 0
@@ -769,12 +769,12 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
                     tup1 = '(' + str(j) + ',' + ' ' + str(i) + ')'
                     total2 += player_chem[tup1]
             total2 = total2/len(team2)-1
-            player_coeff2[i] = total2
+            player_coeff2.update({i:total2})
         else:
             lessthan2.append(i)
     tot2 = 0
-    for i in player_coeff1:
-        tot2 += (player_coeff1[i]*find_rating(i, cur_date))
+    for i in player_coeff2:
+        tot2 += (player_coeff2[i]*find_rating(i, cur_date))
     player_df = prepare_dataframe(player_profile)
     predictions, centers = clustering(player_df)
     #print("LESSTHAN1 ",lessthan1)

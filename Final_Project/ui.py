@@ -331,18 +331,18 @@ if __name__ == "__main__":
     with open(input_file, 'r') as file:
         content = file.read()
         input_data = eval(content)
-        if input_data["req_type"] == 1:
-            # calling predict function:
-            """
-            output = predict(input_)
-            """
-            predict_helper(input_data)
-
-        elif input_data["req_type"] == 2:
-            # calling profile function
-            player_profile_helper(input_data)
-        
-        elif input_data["req_type"] == 3:
+        if 'req_type' not in input_data:
             # calling match info function 
             match_data_helper(input_data)
+        else:
+            if input_data["req_type"] == 1:
+                # calling predict function:
+                """
+                output = predict(input_)
+                """
+                predict_helper(input_data)
+
+            elif input_data["req_type"] == 2:
+                # calling profile function
+                player_profile_helper(input_data)
             

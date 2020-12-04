@@ -210,7 +210,7 @@ def predict_helper(user):
         j3 = open("player_rate.json", "r")
         j3_data = j3.read()
         player_rate = eval(j3_data)
-        temp = predict(player_chem, player_profile, player_rate, teams_dict[t1], teams_dict[t2])
+        temp = predict(player_chem, player_profile, player_rate, teams_dict[t1], teams_dict[t2], cur_date)
         team_1_prediction,team_2_prediction = temp[0],temp[1]
         dictionary = {
             "team1":
@@ -290,7 +290,9 @@ def player_profile_helper(user):
 
 def match_data_helper(user):
     match_date = user['date']
-    match_details = user['label']
+    match_details_final = user['label']
+    match_details_final = match_details_final.split(',')
+    match_details = match_details_final[0]
     """temp = match_details.split(",")
     temp1 = temp[0]
     team1,team2 = temp1.split("-")
@@ -303,15 +305,17 @@ def match_data_helper(user):
         match_info = eval(content)
         for i in match_info:
             date_time = i['dateutc']
-            my_thing = i['label']
+            m_thing = i['label']
+            m_thing = m_thing.split(',')
+            my_thing = m_thing[0]
 
             temp = date_time.split(" ")
             date = temp[0]
 
             # Read teams.csv
             new_teams = sp_sess.read.csv(team_path, header=True, inferSchema=True)
-            new_df = new_teams.filter(new_teams["Id"] == i['winner'])
-            winner_name = new_df.select("name").collect()[0].name
+            # new_df = new_teams.filter(new_teams["Id"] == i['winner'])
+            # winner_name = new_df.select("name").collect()[0].name
             if ((date == match_date) and (my_thing == match_details)):
                 dictionary = fill_match_info(i)
                 json_object = json.dumps(dictionary, indent=4) 
@@ -319,7 +323,9 @@ def match_data_helper(user):
                 with open("output_req_2.json", "w") as outfile:
                     print("Writing....to JSON") 
                     outfile.write(json_object) 
-                break    
+                return
+                break
+    print("DOES NOT EXIST")    
 
 
 

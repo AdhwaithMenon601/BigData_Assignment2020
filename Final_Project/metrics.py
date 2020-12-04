@@ -372,7 +372,7 @@ def player_contribution_main(match_df, players_pass, players_duel, players_kick,
 
 
 # Calculating the player rating
-def player_rating(player_rating, player_contribution, own_per_player, fouls_per_player):
+def player_rating(player_rating, player_contribution, player_profile):
     """
     player_rating : The rating per player for a match
 
@@ -394,14 +394,12 @@ def player_rating(player_rating, player_contribution, own_per_player, fouls_per_
             continue
 
         # Edge cases
-        if (i not in fouls_per_player):
-            fouls_per_player.update({i:0})
-        if (i not in own_per_player):
-            own_per_player.update({i:0})
+        if (i not in player_profile):
+            player_profile.update({i:[0, "", 0, 0, 0, 0, 0]})
 
         # Finding performance
         player_perf = player_contribution[i] - \
-            (((0.005 * fouls_per_player[i]) * player_contribution[i]) + ((0.05 * own_per_player[i]) * player_contribution[i]))
+            (((0.005 * player_profile[i][0]) * player_contribution[i]) + ((0.05 * player_profile[i][3]) * player_contribution[i]))
         temp_var = ((player_rating[i] + player_perf) / 2)
         player_rating.update({i : temp_var})
     
@@ -626,6 +624,11 @@ def find_rating(player_id, cur_date):
     req = res.predictions.select("prediction").rdd.flatMap(lambda x : x).collect()
 
     final_res = req[0] / 10
+
+    if (final_res > 1):
+        final_res /= 2
+    if (final_res > 0.9):
+        final_res /= 2
 
     return abs(final_res)
 

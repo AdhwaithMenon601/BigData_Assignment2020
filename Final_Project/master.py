@@ -163,13 +163,13 @@ def get_profile(player_profile, fouls_per_player, own_per_player, goals_per_play
             else:
                 for j in range(len(player_profile_stats_shots[player_id])):
                     if player_id not in shots_stats:
-                        shots_stats[player_id] = [0, 0, 0, 0]
+                        shots_stats[player_id] = [0, 0, 0]
                     player_profile_stats_shots[player_id][j] = player_profile_stats_shots[player_id][j] + shots_stats[player_id][j]
-            check_sum = (player_profile_stats_shots[player_id][1] + player_profile_stats_shots[player_id][3]) + ((player_profile_stats_shots[player_id][0] + player_profile_stats_shots[player_id][2]) * 2)
+            check_sum = (player_profile_stats_shots[0] + player_profile_stats_shots[1] + player_profile_stats_shots[2])
             if (check_sum == 0):
                 new_shot_acc = 0
             else:
-                new_shot_acc = (player_profile_stats_shots[player_id][1] + (player_profile_stats_shots[player_id][0] * 2)) / ((player_profile_stats_shots[player_id][1] + player_profile_stats_shots[player_id][3]) + ((player_profile_stats_shots[player_id][0] + player_profile_stats_shots[player_id][2]) * 2))          
+                new_shot_acc =(player_profile_stats_shots[0] + (player_profile_stats_shots[1] * 0.5)) / (player_profile_stats_shots[0] + player_profile_stats_shots[1] + player_profile_stats_shots[2])
             new_list = [n1, player_name, n2, n3, new_pass_acc, new_shot_acc, matches]
 
             player_profile.update({player_id : new_list})

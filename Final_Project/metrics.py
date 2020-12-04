@@ -29,14 +29,11 @@ curr_model = None
 ############################################
 #   FIRST LIST OF METRICS COMPUTED
 ############################################
-
 def pass_accuracy(event_df):
     """
     pass_accuracy : Calculates Pass Accuracy per player
-
     Arguments:
         event_df {DF} -- Events Dataframe
-
     Returns:
         dict -- Accuracy per player
     """
@@ -49,6 +46,7 @@ def pass_accuracy(event_df):
     # Selecting all pass events
     pass_df = event_df.filter(event_df['eventId'] == 8)
     player_stats = {}
+    player_acc={}
 
     for record in pass_df.collect():
 
@@ -80,9 +78,9 @@ def pass_accuracy(event_df):
         stats = player_stats[player]
         acc = (stats[1] + (stats[0] * 2)) / \
             ((stats[1] + stats[3]) + ((stats[0] + stats[2]) * 2))
-        player_stats.update({player: acc})
+        player_acc.update({player: acc})
 
-    return player_stats
+    return player_stats,player_acc
 
 
 def duel_effectiveness(event_df):

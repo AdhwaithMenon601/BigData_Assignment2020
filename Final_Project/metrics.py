@@ -455,10 +455,10 @@ def calc_chemistry(player_chemistry, player_rating, prev_player_rating, team_pla
 
         # If ratings of both players either increases or decreases differently then we increase
         if ((p1_change <= 0 and p2_change <= 0) or (p1_change >= 0 and p2_change >= 0)):
-            chem_change = abs((abs(p1_change) - abs(p2_change)) / 2)
+            chem_change = abs((abs(p1_change) + abs(p2_change)) / 2)
         # If ratings of both players increases or decreases same way , then we reduce
         elif ((p1_change <= 0 and p2_change >= 0) or (p1_change >= 0 and p2_change <= 0)):
-            temp_change = abs((abs(p1_change) - abs(p2_change)) / 2)
+            temp_change = abs((abs(p1_change) + abs(p2_change)) / 2)
             chem_change = temp_change * -1
 
         # Updating the player chemistry required

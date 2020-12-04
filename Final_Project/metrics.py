@@ -733,20 +733,20 @@ def clustering(player_profile):
 
 
 def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date):
-    #print(team1)
-    #print(team2)
     player_coeff1 = {}
     lessthan1 = []
     for i in team1:
         player = i
         team1.remove(i)
         total1 = 0
-        if  i in player_profile and player_profile[i][6] >= 5:
+        if  str(i) in player_profile and player_profile[str(i)][6] >= 5:
             for j in team1:
-                if (i, j) in player_chem:
-                    total1 += player_chem[(i, j)]
+                tup = '(' + str(i) + ',' + ' ' + str(j) + ')'
+                if tup in player_chem:
+                    total1 += player_chem[tup]
                 else:
-                    total1 += player_chem[(j, i)]
+                    tup1 = '(' + str(j) + ',' + ' ' + str(i) + ')'
+                    total1 += player_chem[tup1]
             total1 = total1/len(team1)-1
             player_coeff1[i] = total1
         else:
@@ -760,12 +760,14 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
         player = i
         team2.remove(i)
         total2 = 0
-        if i in player_profile and player_profile[i][6] >= 5:
+        if str(i) in player_profile and player_profile[str(i)][6] >= 5:
             for j in team2:
-                if (i, j) in player_chem:
-                    total2 += player_chem[(i, j)]
+                tup = '(' + str(i) + ',' + ' ' + str(j) + ')'
+                if tup in player_chem:
+                    total2 += player_chem[tup]
                 else:
-                    total2 += player_chem[(j, i)]
+                    tup1 = '(' + str(j) + ',' + ' ' + str(i) + ')'
+                    total2 += player_chem[tup1]
             total2 = total2/len(team2)-1
             player_coeff2[i] = total2
         else:
@@ -788,8 +790,8 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
             temp_ids1.append(j_dict["player_id"])
         tot = 0
         for k in temp_ids1:
-            if k in player_ratings and k in player_coeff1:
-                tot += (player_ratings[k]*player_coeff1[k])
+            if str(k) in player_ratings and k in player_coeff1:
+                tot += (player_ratings[str(k)]*player_coeff1[k])
         tot = tot/len(temp_ids_df)
         tot1 += tot
 
@@ -804,14 +806,16 @@ def predict(player_chem, player_profile, player_ratings, team1, team2, cur_date)
             temp_ids2.append(j_dict["player_id"])
         tot = 0
         for k in temp_ids2:
-            if k in player_ratings and k in player_coeff2:
-                tot += (player_ratings[k]*player_coeff2[k])
+            if str(k) in player_ratings and k in player_coeff2:
+                tot += (player_ratings[str(k)]*player_coeff2[k])
+                print("HELLO")
+                print(tot)
 
         tot = tot/len(temp_ids_df)
         tot2 += tot
-    strength_a = tot1/11
-    strength_b = tot2/11
-    chance_a = (0.5+strength_a-((strength_a+strength_b)/2))*100
+    strength_a = float(tot1/11)
+    strength_b = float(tot2/11)
+    chance_a = (0.7+strength_a-((strength_a+strength_b)/2))*100
     chance_b = 100-chance_a
 
     return chance_a, chance_b

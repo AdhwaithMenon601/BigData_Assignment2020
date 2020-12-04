@@ -154,7 +154,7 @@ def predict_helper(user):
     temp = temp[1:]
     cur_date = user['date']
     t1 = temp[0]
-    t2 = temp[0]
+    t2 = temp[1]
     for i in temp:
         players_name_team_2.append(user['team2'][i])
     # Reading the CSV files using Spark session
